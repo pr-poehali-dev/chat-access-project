@@ -169,7 +169,7 @@ export default function Index() {
             </div>
           </div>
           {subscription?.is_active && (
-            <Badge variant="outline" className="gap-2">
+            <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
               <Icon name="CheckCircle" size={14} />
               Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
             </Badge>
@@ -204,10 +204,10 @@ export default function Index() {
 
           <TabsContent value="about" className="mt-6">
             <div className="space-y-6">
-              <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+              <Card className="p-6 bg-gradient-to-br from-secondary/10 to-primary/5 border-secondary/30">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <Icon name="GraduationCap" size={32} className="text-primary" />
+                  <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="GraduationCap" size={32} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold mb-2">Курс "Банкротство физических лиц"</h2>
@@ -223,24 +223,24 @@ export default function Index() {
 
               <div className="grid md:grid-cols-3 gap-4">
                 <Card className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Icon name="Video" size={24} className="text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="Video" size={24} className="text-secondary-foreground" />
                   </div>
                   <h3 className="font-semibold mb-2">7 видеомодулей</h3>
                   <p className="text-sm text-muted-foreground">Пошаговая инструкция с разбором каждого этапа</p>
                 </Card>
 
                 <Card className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Icon name="FileText" size={24} className="text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="FileText" size={24} className="text-secondary-foreground" />
                   </div>
                   <h3 className="font-semibold mb-2">Шаблоны документов</h3>
                   <p className="text-sm text-muted-foreground">Готовые формы и образцы для всех процедур</p>
                 </Card>
 
                 <Card className="p-4 text-center">
-                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Icon name="Users" size={24} className="text-primary" />
+                  <div className="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="Users" size={24} className="text-secondary-foreground" />
                   </div>
                   <h3 className="font-semibold mb-2">Закрытый чат</h3>
                   <p className="text-sm text-muted-foreground">Общение с другими участниками курса</p>
@@ -251,8 +251,8 @@ export default function Index() {
                 <h3 className="text-xl font-semibold mb-4">Программа курса</h3>
                 <div className="space-y-4">
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">1</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">1</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Введение в банкротство физических лиц</h4>
@@ -261,8 +261,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">2</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">2</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Подготовка документов</h4>
@@ -271,8 +271,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">3</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">3</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Подача заявления в суд</h4>
@@ -281,8 +281,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">4</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">4</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Судебные заседания</h4>
@@ -291,8 +291,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">5</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">5</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Реструктуризация долгов</h4>
@@ -301,8 +301,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">6</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">6</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Реализация имущества</h4>
@@ -311,8 +311,8 @@ export default function Index() {
                   </div>
 
                   <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <span className="font-semibold text-primary text-sm">7</span>
+                    <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-secondary-foreground text-sm">7</span>
                     </div>
                     <div>
                       <h4 className="font-semibold mb-1">Завершение процедуры</h4>
@@ -322,9 +322,9 @@ export default function Index() {
                 </div>
               </Card>
 
-              <Card className="p-6 bg-primary/5 border-primary/20">
+              <Card className="p-6 bg-secondary/10 border-secondary/30">
                 <div className="flex items-start gap-4">
-                  <Icon name="ShieldCheck" size={32} className="text-primary shrink-0" />
+                  <Icon name="ShieldCheck" size={32} className="text-secondary-foreground shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Гарантия результата</h3>
                     <p className="text-muted-foreground mb-3">
@@ -424,19 +424,19 @@ export default function Index() {
                   </div>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>7 видеомодулей курса</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Шаблоны документов</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Доступ к закрытому чату</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>30 дней поддержки</span>
                     </li>
                   </ul>
@@ -450,12 +450,12 @@ export default function Index() {
                 </div>
               </Card>
 
-              <Card className="p-6 border-2 border-primary hover:shadow-lg transition-shadow">
-                <Badge className="mb-4">Рекомендуем</Badge>
+              <Card className="p-6 border-2 border-secondary hover:shadow-lg transition-shadow">
+                <Badge className="mb-4 bg-secondary text-secondary-foreground">Рекомендуем</Badge>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon name="Star" size={24} className="text-primary" />
+                    <div className="w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center">
+                      <Icon name="Star" size={24} className="text-secondary-foreground" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg">Полный курс</h3>
@@ -468,23 +468,23 @@ export default function Index() {
                   </div>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Весь курс + материалы</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Доступ к чату — 3 месяца</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Личная консультация с экспертом</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Проверка документов</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
-                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <Icon name="Check" size={16} className="text-accent mt-0.5" />
                       <span>Приоритетная поддержка</span>
                     </li>
                   </ul>
@@ -500,10 +500,10 @@ export default function Index() {
             </div>
 
             {subscription?.is_active && (
-              <Card className="mt-6 p-6 bg-primary/5 border-primary/20">
+              <Card className="mt-6 p-6 bg-secondary/10 border-secondary/30">
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="Info" size={20} className="text-primary" />
+                  <div className="w-10 h-10 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="Info" size={20} className="text-secondary-foreground" />
                   </div>
                   <div className="space-y-1">
                     <h3 className="font-semibold">Ваша подписка активна</h3>
@@ -521,8 +521,8 @@ export default function Index() {
               <h2 className="text-2xl font-semibold mb-6">Правила чата</h2>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="Shield" size={18} className="text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="Shield" size={18} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Анонимность</h3>
@@ -533,8 +533,8 @@ export default function Index() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="Users" size={18} className="text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="Users" size={18} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Уважение</h3>
@@ -545,8 +545,8 @@ export default function Index() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="AlertTriangle" size={18} className="text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="AlertTriangle" size={18} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Запрещено</h3>
@@ -557,8 +557,8 @@ export default function Index() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="Lock" size={18} className="text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="Lock" size={18} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Конфиденциальность</h3>
@@ -569,8 +569,8 @@ export default function Index() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon name="Target" size={18} className="text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center shrink-0">
+                    <Icon name="Target" size={18} className="text-secondary-foreground" />
                   </div>
                   <div>
                     <h3 className="font-semibold mb-2">Тематика чата</h3>
