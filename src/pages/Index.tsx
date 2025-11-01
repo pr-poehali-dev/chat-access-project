@@ -35,6 +35,16 @@ export default function Index() {
     }
   }, [token, activeTab]);
 
+  useEffect(() => {
+    if (activeTab === 'chat' && token && subscription?.is_active) {
+      const interval = setInterval(() => {
+        loadMessages(true);
+      }, 10000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, token, subscription?.is_active]);
+
   const loadSubscription = async () => {
     try {
       const res = await fetch(SUB_API, {
@@ -52,9 +62,9 @@ export default function Index() {
     }
   };
 
-  const loadMessages = async () => {
+  const loadMessages = async (silent = false) => {
     if (!token) return;
-    setIsLoading(true);
+    if (!silent) setIsLoading(true);
     try {
       const res = await fetch(CHAT_API, {
         headers: { 'X-User-Token': token }
@@ -62,7 +72,7 @@ export default function Index() {
       if (res.ok) {
         const data = await res.json();
         setMessages(data.messages);
-      } else {
+      } else if (!silent) {
         toast({
           title: 'Ошибка доступа',
           description: 'Проверьте статус подписки',
@@ -70,13 +80,15 @@ export default function Index() {
         });
       }
     } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить сообщения',
-        variant: 'destructive'
-      });
+      if (!silent) {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось загрузить сообщения',
+          variant: 'destructive'
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
 
