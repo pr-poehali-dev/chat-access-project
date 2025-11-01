@@ -1,0 +1,19 @@
+{
+  "tests": [
+    {
+      "name": "Get messages without token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Post message without token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "content": "Test message"
+      },
+      "expectedStatus": 401
+    }
+  ]
+}

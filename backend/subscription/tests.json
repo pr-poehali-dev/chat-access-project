@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Create weekly subscription",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "plan": "week"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "token": "string",
+        "plan": "week"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create monthly subscription",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "plan": "month"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "token": "string",
+        "plan": "month"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
