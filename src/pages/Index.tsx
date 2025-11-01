@@ -18,7 +18,7 @@ const CHAT_API = 'https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4
 const SUB_API = 'https://functions.poehali.dev/957d493f-5bdb-4f6b-9b96-4f755f9d1d9b';
 
 export default function Index() {
-  const [activeTab, setActiveTab] = useState('subscription');
+  const [activeTab, setActiveTab] = useState('about');
   const [token, setToken] = useState<string | null>(localStorage.getItem('userToken'));
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -164,8 +164,8 @@ export default function Index() {
               <Icon name="MessageSquare" size={24} className="text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-foreground">Закрытый чат</h1>
-              <p className="text-xs text-muted-foreground">Профессиональное общение</p>
+              <h1 className="text-xl font-semibold text-foreground">Банкротство физ. лиц</h1>
+              <p className="text-xs text-muted-foreground">Закрытое сообщество курса Валентины Голосовой</p>
             </div>
           </div>
           {subscription?.is_active && (
@@ -179,14 +179,18 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="about">
+              <Icon name="Info" size={16} className="mr-2" />
+              О курсе
+            </TabsTrigger>
             <TabsTrigger value="chat" disabled={!token || !subscription?.is_active}>
               <Icon name="MessageSquare" size={16} className="mr-2" />
               Чат
             </TabsTrigger>
             <TabsTrigger value="subscription">
               <Icon name="CreditCard" size={16} className="mr-2" />
-              Подписка
+              Тарифы
             </TabsTrigger>
             <TabsTrigger value="rules">
               <Icon name="FileText" size={16} className="mr-2" />
@@ -197,6 +201,143 @@ export default function Index() {
               Поддержка
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="about" className="mt-6">
+            <div className="space-y-6">
+              <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                    <Icon name="GraduationCap" size={32} className="text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2">Курс "Банкротство физических лиц"</h2>
+                    <p className="text-lg text-muted-foreground mb-4">
+                      Автор: <span className="font-semibold text-foreground">Валентина Голосова</span> — арбитражный управляющий
+                    </p>
+                    <p className="text-foreground">
+                      Пройдите процедуру банкротства самостоятельно и сэкономьте до 150 000 рублей на услугах юристов
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <Card className="p-4 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="Video" size={24} className="text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">7 видеомодулей</h3>
+                  <p className="text-sm text-muted-foreground">Пошаговая инструкция с разбором каждого этапа</p>
+                </Card>
+
+                <Card className="p-4 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="FileText" size={24} className="text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Шаблоны документов</h3>
+                  <p className="text-sm text-muted-foreground">Готовые формы и образцы для всех процедур</p>
+                </Card>
+
+                <Card className="p-4 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Icon name="Users" size={24} className="text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Закрытый чат</h3>
+                  <p className="text-sm text-muted-foreground">Общение с другими участниками курса</p>
+                </Card>
+              </div>
+
+              <Card className="p-6">
+                <h3 className="text-xl font-semibold mb-4">Программа курса</h3>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Введение в банкротство физических лиц</h4>
+                      <p className="text-sm text-muted-foreground">Основы законодательства, кому подходит процедура, плюсы и минусы</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Подготовка документов</h4>
+                      <p className="text-sm text-muted-foreground">Какие документы нужны, как их правильно оформить и собрать</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Подача заявления в суд</h4>
+                      <p className="text-sm text-muted-foreground">Пошаговая инструкция по подаче и регистрации заявления</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">4</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Судебные заседания</h4>
+                      <p className="text-sm text-muted-foreground">Как вести себя в суде, что говорить, частые вопросы судей</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">5</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Реструктуризация долгов</h4>
+                      <p className="text-sm text-muted-foreground">Процедура реструктуризации, как договориться с кредиторами</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">6</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Реализация имущества</h4>
+                      <p className="text-sm text-muted-foreground">Что может быть изъято, как защитить свое имущество</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="font-semibold text-primary text-sm">7</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Завершение процедуры</h4>
+                      <p className="text-sm text-muted-foreground">Списание долгов, последствия банкротства, жизнь после</p>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-primary/5 border-primary/20">
+                <div className="flex items-start gap-4">
+                  <Icon name="ShieldCheck" size={32} className="text-primary shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Гарантия результата</h3>
+                    <p className="text-muted-foreground mb-3">
+                      Более 500 выпускников уже успешно прошли процедуру банкротства и списали долги от 300 000 до 5 000 000 рублей
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      При правильном следовании инструкциям курса, вы гарантированно пройдете процедуру банкротства
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
 
           <TabsContent value="chat" className="mt-6">
             <Card className="p-6">
@@ -273,26 +414,30 @@ export default function Index() {
                       <Icon name="Calendar" size={24} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">Неделя</h3>
-                      <p className="text-sm text-muted-foreground">7 дней доступа</p>
+                      <h3 className="font-semibold text-lg">Базовый</h3>
+                      <p className="text-sm text-muted-foreground">Месяц доступа к курсу</p>
                     </div>
                   </div>
                   <div className="py-4">
-                    <div className="text-3xl font-bold text-foreground mb-1">499 ₽</div>
-                    <p className="text-sm text-muted-foreground">71 ₽ в день</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">2 999 ₽</div>
+                    <p className="text-sm text-muted-foreground">100 ₽ в день</p>
                   </div>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>Полный доступ к чату</span>
+                      <span>7 видеомодулей курса</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>История сообщений</span>
+                      <span>Шаблоны документов</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>Анонимность гарантирована</span>
+                      <span>Доступ к закрытому чату</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <span>30 дней поддержки</span>
                     </li>
                   </ul>
                   <Button 
@@ -306,33 +451,37 @@ export default function Index() {
               </Card>
 
               <Card className="p-6 border-2 border-primary hover:shadow-lg transition-shadow">
-                <Badge className="mb-4">Популярный</Badge>
+                <Badge className="mb-4">Рекомендуем</Badge>
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon name="Calendar" size={24} className="text-primary" />
+                      <Icon name="Star" size={24} className="text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">Месяц</h3>
-                      <p className="text-sm text-muted-foreground">30 дней доступа</p>
+                      <h3 className="font-semibold text-lg">Полный курс</h3>
+                      <p className="text-sm text-muted-foreground">3 месяца сопровождения</p>
                     </div>
                   </div>
                   <div className="py-4">
-                    <div className="text-3xl font-bold text-foreground mb-1">1 490 ₽</div>
-                    <p className="text-sm text-muted-foreground">50 ₽ в день · экономия 30%</p>
+                    <div className="text-3xl font-bold text-foreground mb-1">7 999 ₽</div>
+                    <p className="text-sm text-muted-foreground">89 ₽ в день · экономия 62%</p>
                   </div>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>Полный доступ к чату</span>
+                      <span>Весь курс + материалы</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>История сообщений</span>
+                      <span>Доступ к чату — 3 месяца</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
-                      <span>Анонимность гарантирована</span>
+                      <span>Личная консультация с экспертом</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-sm">
+                      <Icon name="Check" size={16} className="text-primary mt-0.5" />
+                      <span>Проверка документов</span>
                     </li>
                     <li className="flex items-start gap-2 text-sm">
                       <Icon name="Check" size={16} className="text-primary mt-0.5" />
@@ -424,9 +573,9 @@ export default function Index() {
                     <Icon name="Target" size={18} className="text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-semibold mb-2">Тематика</h3>
+                    <h3 className="font-semibold mb-2">Тематика чата</h3>
                     <p className="text-sm text-muted-foreground">
-                      Чат предназначен для профессионального общения и обмена опытом.
+                      Обсуждаем только вопросы банкротства: ход процедуры, документы, опыт общения с судами и управляющими.
                     </p>
                   </div>
                 </div>
@@ -445,21 +594,27 @@ export default function Index() {
                       <h3 className="font-semibold mb-2">Часто задаваемые вопросы</h3>
                       <div className="space-y-3 text-sm">
                         <div>
-                          <p className="font-medium mb-1">Как продлить подписку?</p>
+                          <p className="font-medium mb-1">Сколько длится процедура банкротства?</p>
                           <p className="text-muted-foreground">
-                            Оформите новую подписку в разделе "Подписка". Она автоматически активируется после окончания текущей.
+                            В среднем от 6 до 12 месяцев. Точные сроки зависят от загруженности суда и сложности вашего дела.
                           </p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Можно ли вернуть деньги?</p>
+                          <p className="font-medium mb-1">Какие долги можно списать?</p>
                           <p className="text-muted-foreground">
-                            Возврат средств возможен в течение 24 часов с момента оформления подписки.
+                            Кредиты, займы, долги по ЖКХ, налоги. Нельзя списать алименты, возмещение вреда здоровью, зарплату работникам.
                           </p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Как сохранить токен доступа?</p>
+                          <p className="font-medium mb-1">Нужен ли мне юрист для банкротства?</p>
                           <p className="text-muted-foreground">
-                            Токен автоматически сохраняется в браузере. Не удаляйте данные сайта.
+                            Нет! Наш курс содержит все материалы для самостоятельного прохождения процедуры. Экономия до 150 000 рублей.
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Как продлить доступ к курсу?</p>
+                          <p className="text-muted-foreground">
+                            Оформите подписку повторно в разделе "Тарифы". Доступ продлится автоматически.
                           </p>
                         </div>
                       </div>
@@ -474,14 +629,23 @@ export default function Index() {
                       <Icon name="Mail" size={20} className="text-primary" />
                       <div>
                         <p className="text-sm font-medium">Email</p>
-                        <p className="text-sm text-muted-foreground">support@example.com</p>
+                        <p className="text-sm text-muted-foreground">info@bankrot-kurs.ru</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                       <Icon name="MessageCircle" size={20} className="text-primary" />
                       <div>
                         <p className="text-sm font-medium">Telegram</p>
-                        <p className="text-sm text-muted-foreground">@support_chat</p>
+                        <p className="text-sm text-muted-foreground">@bankrot_kurs_support</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                      <Icon name="Globe" size={20} className="text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">Официальный сайт</p>
+                        <a href="https://bankrot-kurs.ru" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                          bankrot-kurs.ru
+                        </a>
                       </div>
                     </div>
                   </div>
