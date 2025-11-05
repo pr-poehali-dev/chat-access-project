@@ -43,11 +43,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Все поля обязательны'})
         }
     
+    sender = 'melni-v@yandex.ru'
     recipient = 'melni-v@yandex.ru'
     
     msg = MIMEMultipart()
-    msg['From'] = user_email
+    msg['From'] = sender
     msg['To'] = recipient
+    msg['Reply-To'] = user_email
     msg['Subject'] = f'Обращение в поддержку от {name}'
     
     email_body = f"""
