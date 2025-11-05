@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Handle OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Send support email",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тестовый пользователь",
+        "email": "test@example.com",
+        "message": "Тестовое сообщение в поддержку"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Reject empty fields",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "",
+        "email": "test@example.com",
+        "message": ""
+      },
+      "expectedStatus": 400
+    }
+  ]
+}
