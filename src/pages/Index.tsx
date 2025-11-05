@@ -120,20 +120,19 @@ export default function Index() {
 
   const showNotification = (message: string) => {
     if ('Notification' in window && Notification.permission === 'granted') {
-      if (document.hidden) {
-        new Notification('Новое сообщение в чате', {
-          body: message.substring(0, 100),
-          icon: 'https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/ec56d354-a0c1-45ae-ad47-5e168cf62891.jpg',
-          tag: 'chat-message'
-        });
-      }
+      new Notification('Новое сообщение в чате', {
+        body: message.substring(0, 100),
+        icon: 'https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/9408ffb6-d620-48c1-a73c-28f51c620a12.jpg',
+        tag: 'chat-message',
+        requireInteraction: false
+      });
     }
   };
 
   const loadMessages = async (silent = false) => {
     if (!token) return;
     if (!silent) setIsLoading(true);
-    const prevMessageCount = messages.length;
+    const prevLatestId = messages.length > 0 ? messages[0].id : 0;
     try {
       const res = await fetch(CHAT_API, {
         headers: { 'X-User-Token': token }
@@ -142,9 +141,8 @@ export default function Index() {
         const data = await res.json();
         const newMessages = data.messages;
         
-        if (silent && newMessages.length > prevMessageCount) {
-          const latestMessage = newMessages[newMessages.length - 1];
-          showNotification(latestMessage.content);
+        if (silent && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
+          showNotification(newMessages[0].content);
         }
         
         setMessages(newMessages);
