@@ -2,20 +2,20 @@
   "name": "Курс банкротства физ. лиц",
   "short_name": "Банкротство",
   "description": "Обучающий курс по банкротству физических лиц от Валентины Голосовой",
-  "start_url": "/?v=2",
+  "start_url": "/?v=3",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#D4AF37",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/e43c5592-1c35-483f-9608-2999880a779d.jpg",
+      "src": "https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/9408ffb6-d620-48c1-a73c-28f51c620a12.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/e43c5592-1c35-483f-9608-2999880a779d.jpg",
+      "src": "https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/9408ffb6-d620-48c1-a73c-28f51c620a12.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
