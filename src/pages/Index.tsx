@@ -32,6 +32,7 @@ const SUB_API = 'https://functions.poehali.dev/957d493f-5bdb-4f6b-9b96-4f755f9d1
 export default function Index() {
   const [activeTab, setActiveTab] = useState('about');
   const [token, setToken] = useState<string | null>(localStorage.getItem('userToken'));
+  const [isAdmin, setIsAdmin] = useState<boolean>(localStorage.getItem('isAdmin') === 'true');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -93,7 +94,7 @@ export default function Index() {
       if (res.ok) {
         const data = await res.json();
         setSubscription(data);
-        if (data.is_active) {
+        if (data.is_active && activeTab === 'about') {
           setActiveTab('chat');
         }
       }
@@ -255,7 +256,7 @@ export default function Index() {
               <Icon name="Info" size={18} />
               <span className="text-xs">О курсе</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" disabled={!token || !subscription?.is_active} className="flex-col gap-1 py-2 px-1">
+            <TabsTrigger value="chat" disabled={!token || (!subscription?.is_active && !isAdmin)} className="flex-col gap-1 py-2 px-1">
               <Icon name="MessageSquare" size={18} />
               <span className="text-xs">Чат</span>
             </TabsTrigger>
@@ -385,7 +386,9 @@ export default function Index() {
                   if (e.key === 'Enter') {
                     if (adminPassword === 'ValentinaGolosova2024') {
                       localStorage.setItem('userToken', 'admin_forever_access_2024');
+                      localStorage.setItem('isAdmin', 'true');
                       setToken('admin_forever_access_2024');
+                      setIsAdmin(true);
                       setShowAdminDialog(false);
                       setAdminPassword('');
                       toast({
