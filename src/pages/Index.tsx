@@ -238,6 +238,24 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {!token && (
+              <Button 
+                onClick={() => {
+                  localStorage.setItem('userToken', 'admin_forever_access_2024');
+                  setToken('admin_forever_access_2024');
+                  toast({
+                    title: 'Админ-доступ активирован! 🔑',
+                    description: 'Теперь у вас есть полный доступ к чату',
+                  });
+                }}
+                variant="outline"
+                className="gap-2"
+                size="sm"
+              >
+                <Icon name="Key" size={16} />
+                Админ-доступ
+              </Button>
+            )}
             <Button 
               onClick={() => setShowInstallDialog(true)}
               className="gap-2"
