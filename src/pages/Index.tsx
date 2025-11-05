@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,8 @@ export default function Index() {
   const [subscription, setSubscription] = useState<any>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [showInstallDialog, setShowInstallDialog] = useState(false);
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -240,14 +243,7 @@ export default function Index() {
           <div className="flex items-center gap-3">
             {!token && (
               <Button 
-                onClick={() => {
-                  localStorage.setItem('userToken', 'admin_forever_access_2024');
-                  setToken('admin_forever_access_2024');
-                  toast({
-                    title: 'Админ-доступ активирован! 🔑',
-                    description: 'Теперь у вас есть полный доступ к чату',
-                  });
-                }}
+                onClick={() => setShowAdminDialog(true)}
                 variant="outline"
                 className="gap-2"
                 size="sm"
@@ -386,6 +382,86 @@ export default function Index() {
                 </div>
               </div>
             </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="ShieldCheck" size={24} className="text-primary" />
+              Админ-доступ
+            </DialogTitle>
+            <DialogDescription>
+              Введите пароль администратора для доступа к чату
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div>
+              <Input
+                type="password"
+                placeholder="Введите пароль"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (adminPassword === 'ValentinaGolosova2024') {
+                      localStorage.setItem('userToken', 'admin_forever_access_2024');
+                      setToken('admin_forever_access_2024');
+                      setShowAdminDialog(false);
+                      setAdminPassword('');
+                      toast({
+                        title: 'Доступ активирован! 🔑',
+                        description: 'Добро пожаловать, администратор',
+                      });
+                    } else {
+                      toast({
+                        title: 'Неверный пароль',
+                        description: 'Попробуйте еще раз',
+                        variant: 'destructive',
+                      });
+                    }
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  if (adminPassword === 'ValentinaGolosova2024') {
+                    localStorage.setItem('userToken', 'admin_forever_access_2024');
+                    setToken('admin_forever_access_2024');
+                    setShowAdminDialog(false);
+                    setAdminPassword('');
+                    toast({
+                      title: 'Доступ активирован! 🔑',
+                      description: 'Добро пожаловать, администратор',
+                    });
+                  } else {
+                    toast({
+                      title: 'Неверный пароль',
+                      description: 'Попробуйте еще раз',
+                      variant: 'destructive',
+                    });
+                  }
+                }}
+              >
+                Войти
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowAdminDialog(false);
+                  setAdminPassword('');
+                }}
+              >
+                Отмена
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
