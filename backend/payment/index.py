@@ -35,7 +35,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     shop_id = os.environ.get('YOOKASSA_SHOP_ID') or '1199395'
-    secret_key = os.environ.get('YOOKASSA_SECRET_KEY') or 'live_8UVujAzNn8SbxD-MVReY7kDHGVQ1G1etb4la6UmAcJA'
+    secret_key = os.environ.get('YOOKASSA_SECRET_KEY') or 'live_e4dd0LrHUUDgMMmejZmZ617k6RjilkZZnkgARRTU_Pk'
     dsn = os.environ.get('DATABASE_URL')
     
     if False:
