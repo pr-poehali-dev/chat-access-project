@@ -4,22 +4,24 @@ import Icon from '@/components/ui/icon';
 export default function AboutTab() {
   return (
     <div className="space-y-6">
-      <Card className="p-6 bg-gradient-to-br from-primary/30 to-primary/20 border-primary">
-        <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shrink-0">
-            <Icon name="GraduationCap" size={32} className="text-primary-foreground" />
+      <a href="https://bankrot-kurs.ru/" target="_blank" rel="noopener noreferrer" className="block">
+        <Card className="p-6 bg-gradient-to-br from-primary/30 to-primary/20 border-primary hover:shadow-lg transition-shadow cursor-pointer">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shrink-0">
+              <Icon name="GraduationCap" size={32} className="text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Курс "Банкротство физических лиц"</h2>
+              <p className="text-lg text-muted-foreground mb-4">
+                Автор: <span className="font-semibold text-foreground">Валентина Голосова</span> — арбитражный управляющий
+              </p>
+              <p className="text-foreground">
+                Пройдите процедуру банкротства самостоятельно и сэкономьте до 150 000 рублей на услугах юристов
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Курс "Банкротство физических лиц"</h2>
-            <p className="text-lg text-muted-foreground mb-4">
-              Автор: <span className="font-semibold text-foreground">Валентина Голосова</span> — арбитражный управляющий
-            </p>
-            <p className="text-foreground">
-              Пройдите процедуру банкротства самостоятельно и сэкономьте до 150 000 рублей на услугах юристов
-            </p>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </a>
 
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="p-4 text-center">
