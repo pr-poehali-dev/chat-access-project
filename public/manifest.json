@@ -2,7 +2,7 @@
   "name": "Курс банкротства физ. лиц",
   "short_name": "Банкротство",
   "description": "Обучающий курс по банкротству физических лиц от Валентины Голосовой",
-  "start_url": "/",
+  "start_url": "/?v=2",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#D4AF37",
