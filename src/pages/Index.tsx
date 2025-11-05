@@ -89,6 +89,21 @@ export default function Index() {
     }
   }, [activeTab, token, subscription?.is_active]);
 
+  useEffect(() => {
+    if (token && subscription?.is_active && 'serviceWorker' in navigator) {
+      const bgInterval = setInterval(() => {
+        navigator.serviceWorker.ready.then(registration => {
+          registration.active?.postMessage({
+            type: 'CHECK_MESSAGES',
+            token: token
+          });
+        });
+      }, 15000);
+      
+      return () => clearInterval(bgInterval);
+    }
+  }, [token, subscription?.is_active]);
+
   const loadSubscription = async () => {
     try {
       const res = await fetch(SUB_API, {
@@ -149,6 +164,15 @@ export default function Index() {
         }
         
         setMessages(newMessages);
+        
+        if (newMessages.length > 0 && 'serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.active?.postMessage({
+              type: 'UPDATE_LAST_MESSAGE_ID',
+              messageId: newMessages[0].id
+            });
+          });
+        }
       } else if (!silent) {
         toast({
           title: 'Ошибка доступа',
