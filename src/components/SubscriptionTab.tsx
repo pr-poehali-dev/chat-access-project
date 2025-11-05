@@ -86,7 +86,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
           <div className="text-center">
             <Badge className="mb-4">Пробный период</Badge>
             <div className="mb-4">
-              <span className="text-4xl font-bold">299₽</span>
+              <span className="text-4xl font-bold">999₽</span>
               <span className="text-muted-foreground">/неделя</span>
             </div>
             <ul className="space-y-3 mb-6 text-left">
@@ -108,7 +108,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
               onClick={() => handlePayment('week')}
               disabled={subscription?.is_active || isLoading}
             >
-              {isLoading ? 'Загрузка...' : 'Оплатить 299₽'}
+              {isLoading ? 'Загрузка...' : 'Оплатить 999₽'}
             </Button>
           </div>
         </Card>
@@ -118,7 +118,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
           <div className="text-center">
             <Badge className="mb-4" variant="secondary">Полный доступ</Badge>
             <div className="mb-4">
-              <span className="text-4xl font-bold">999₽</span>
+              <span className="text-4xl font-bold">3999₽</span>
               <span className="text-muted-foreground">/месяц</span>
             </div>
             <ul className="space-y-3 mb-6 text-left">
@@ -136,7 +136,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
               </li>
               <li className="flex items-start gap-2">
                 <Icon name="Check" size={20} className="text-secondary shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-primary">Экономия 197₽</span>
+                <span className="text-sm font-semibold text-primary">Экономия 1000₽</span>
               </li>
             </ul>
             <Button
@@ -144,7 +144,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
               onClick={() => handlePayment('month')}
               disabled={subscription?.is_active || isLoading}
             >
-              {isLoading ? 'Загрузка...' : 'Оплатить 999₽'}
+              {isLoading ? 'Загрузка...' : 'Оплатить 3999₽'}
             </Button>
           </div>
         </Card>
