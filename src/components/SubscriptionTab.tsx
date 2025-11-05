@@ -25,20 +25,22 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
       });
       
       const data = await res.json();
+      console.log('Payment API response:', { status: res.status, data });
       
       if (res.ok && data.payment_url) {
         window.location.href = data.payment_url;
       } else {
         toast({
           title: 'Ошибка',
-          description: 'Не удалось создать платёж',
+          description: data.error || data.details || 'Не удалось создать платёж',
           variant: 'destructive'
         });
       }
     } catch (error) {
+      console.error('Payment error:', error);
       toast({
         title: 'Ошибка',
-        description: 'Проблема с подключением к платёжной системе',
+        description: error instanceof Error ? error.message : 'Проблема с подключением к платёжной системе',
         variant: 'destructive'
       });
     } finally {
