@@ -40,6 +40,18 @@ export default function Index() {
         .then(() => console.log('Service Worker registered'))
         .catch((err) => console.error('Service Worker registration failed:', err));
     }
+
+    const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
+    if (!hasSeenInstallPrompt) {
+      setTimeout(() => {
+        toast({
+          title: '📱 Установите приложение',
+          description: 'Добавьте приложение на главный экран для быстрого доступа!',
+          duration: 7000,
+        });
+        localStorage.setItem('hasSeenInstallPrompt', 'true');
+      }, 3000);
+    }
   }, []);
 
   useEffect(() => {
