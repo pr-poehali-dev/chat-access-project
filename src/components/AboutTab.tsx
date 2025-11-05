@@ -136,6 +136,51 @@ export default function AboutTab() {
           </div>
         </div>
       </Card>
+
+      <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/30">
+        <div className="flex items-start gap-4">
+          <Icon name="Smartphone" size={32} className="text-blue-600 shrink-0" />
+          <div>
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              📱 Установите приложение на телефон
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Icon name="Apple" size={18} className="text-foreground" />
+                  Для iPhone (iOS):
+                </h4>
+                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Откройте этот сайт в браузере <strong>Safari</strong></li>
+                  <li>Нажмите кнопку "Поделиться" <Icon name="Share" size={14} className="inline" /> (внизу экрана)</li>
+                  <li>Выберите "На экран «Домой»"</li>
+                  <li>Нажмите "Добавить" — готово! 🎉</li>
+                </ol>
+              </div>
+
+              <div>
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Icon name="Smartphone" size={18} className="text-foreground" />
+                  Для Android:
+                </h4>
+                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Откройте этот сайт в <strong>Chrome</strong></li>
+                  <li>Нажмите меню ⋮ (три точки в углу)</li>
+                  <li>Выберите "Установить приложение" или "Добавить на главный экран"</li>
+                  <li>Подтвердите установку — готово! 🎉</li>
+                </ol>
+              </div>
+
+              <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                <p className="text-sm text-muted-foreground">
+                  <Icon name="Zap" size={16} className="inline text-primary" /> <strong>Преимущества:</strong> Быстрый доступ с главного экрана, работает офлайн, push-уведомления о новых сообщениях
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
