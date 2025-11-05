@@ -56,13 +56,13 @@ export default function Index() {
 
     const hasSeenInstallPrompt = localStorage.getItem('hasSeenInstallPrompt');
     if (!hasSeenInstallPrompt) {
+      localStorage.setItem('hasSeenInstallPrompt', 'true');
       setTimeout(() => {
         toast({
           title: '📱 Установите приложение',
           description: 'Добавьте приложение на главный экран для быстрого доступа!',
           duration: 7000,
         });
-        localStorage.setItem('hasSeenInstallPrompt', 'true');
       }, 3000);
     }
   }, []);
