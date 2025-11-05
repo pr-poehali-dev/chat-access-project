@@ -135,7 +135,7 @@ export default function Index() {
   const loadMessages = async (silent = false) => {
     if (!token) return;
     if (!silent) setIsLoading(true);
-    const prevLatestId = messages.length > 0 ? messages[0].id : 0;
+    const prevLatestId = messages.length > 0 ? messages[0].id : null;
     try {
       const res = await fetch(CHAT_API, {
         headers: { 'X-User-Token': token }
@@ -144,7 +144,7 @@ export default function Index() {
         const data = await res.json();
         const newMessages = data.messages;
         
-        if (silent && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
+        if (silent && prevLatestId !== null && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
           showNotification(newMessages[0].content);
         }
         
