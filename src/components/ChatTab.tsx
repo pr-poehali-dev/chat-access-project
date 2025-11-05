@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +32,15 @@ export default function ChatTab({
   onRequestNotifications
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -65,7 +74,7 @@ export default function ChatTab({
               Сообщений пока нет. Начните общение!
             </p>
           ) : (
-            messages.map(msg => {
+            messages.slice().reverse().map(msg => {
               const parentMsg = msg.reply_to ? messages.find(m => m.id === msg.reply_to) : null;
               
               return (
@@ -98,6 +107,7 @@ export default function ChatTab({
               );
             })
           )}
+          <div ref={messagesEndRef} />
         </div>
 
         {replyingTo && (
