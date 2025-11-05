@@ -28,8 +28,9 @@ export default function SupportTab() {
 
       if (response.ok) {
         toast({
-          title: 'Ваше сообщение отправлено',
-          description: 'Мы свяжемся с вами в ближайшее время'
+          title: 'Благодарим за обращение! ✉️',
+          description: 'Ваше сообщение отправлено. Наши специалисты свяжутся с вами в ближайшее время.',
+          duration: 5000
         });
         setName('');
         setEmail('');
