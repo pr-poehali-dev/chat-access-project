@@ -26,7 +26,20 @@ export default function Index() {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [subscription, setSubscription] = useState<any>(null);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const { toast } = useToast();
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+    }
+    
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(() => console.log('Service Worker registered'))
+        .catch((err) => console.error('Service Worker registration failed:', err));
+    }
+  }, []);
 
   useEffect(() => {
     if (token) {
@@ -64,16 +77,49 @@ export default function Index() {
     }
   };
 
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      if (permission === 'granted') {
+        toast({
+          title: 'Уведомления включены',
+          description: 'Теперь вы будете получать уведомления о новых сообщениях'
+        });
+      }
+    }
+  };
+
+  const showNotification = (message: string) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      if (document.hidden) {
+        new Notification('Новое сообщение в чате', {
+          body: message.substring(0, 100),
+          icon: 'https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/ec56d354-a0c1-45ae-ad47-5e168cf62891.jpg',
+          tag: 'chat-message'
+        });
+      }
+    }
+  };
+
   const loadMessages = async (silent = false) => {
     if (!token) return;
     if (!silent) setIsLoading(true);
+    const prevMessageCount = messages.length;
     try {
       const res = await fetch(CHAT_API, {
         headers: { 'X-User-Token': token }
       });
       if (res.ok) {
         const data = await res.json();
-        setMessages(data.messages);
+        const newMessages = data.messages;
+        
+        if (silent && newMessages.length > prevMessageCount) {
+          const latestMessage = newMessages[newMessages.length - 1];
+          showNotification(latestMessage.content);
+        }
+        
+        setMessages(newMessages);
       } else if (!silent) {
         toast({
           title: 'Ошибка доступа',
@@ -213,8 +259,10 @@ export default function Index() {
               messages={messages}
               newMessage={newMessage}
               isLoading={isLoading}
+              notificationPermission={notificationPermission}
               onMessageChange={setNewMessage}
               onSendMessage={sendMessage}
+              onRequestNotifications={requestNotificationPermission}
             />
           </TabsContent>
 
