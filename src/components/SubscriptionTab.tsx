@@ -157,7 +157,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             <span>Безопасная оплата</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Платежи обрабатываются через Robokassa. После успешной оплаты доступ к чату откроется автоматически.
+            Платежи обрабатываются через ЮKassa (Яндекс). После успешной оплаты доступ к чату откроется автоматически.
           </p>
         </div>
       </Card>

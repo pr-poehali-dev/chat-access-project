@@ -1,18 +1,20 @@
 import json
 import os
-import hashlib
+import base64
 from typing import Dict, Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 import secrets
+import urllib.request
+import urllib.error
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Payment processing with Robokassa integration
+    Business: Payment processing with YooKassa (Yandex Checkout) integration
     Args: event - dict with httpMethod, body, queryStringParameters
           context - object with request_id
-    Returns: HTTP response with payment URL or confirmation
+    Returns: HTTP response with payment URL or webhook confirmation
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -28,9 +30,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': ''
         }
     
-    merchant_login = os.environ.get('ROBOKASSA_MERCHANT_LOGIN')
-    password_1 = os.environ.get('ROBOKASSA_PASSWORD_1')
-    password_2 = os.environ.get('ROBOKASSA_PASSWORD_2')
+    shop_id = os.environ.get('YOOKASSA_SHOP_ID')
+    secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
     dsn = os.environ.get('DATABASE_URL')
     
     if method == 'POST':
@@ -38,6 +39,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if body_str.strip() == '':
             body_str = '{}'
         body_data = json.loads(body_str)
+        
+        if 'object' in body_data and body_data.get('event') == 'payment.succeeded':
+            payment_id = body_data['object']['id']
+            metadata = body_data['object'].get('metadata', {})
+            invoice_id = metadata.get('invoice_id')
+            plan = metadata.get('plan')
+            
+            if not invoice_id or not plan:
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'status': 'ok'})
+                }
+            
+            conn = psycopg2.connect(dsn)
+            try:
+                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    cur.execute(
+                        "SELECT status FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = %s",
+                        (invoice_id,)
+                    )
+                    order = cur.fetchone()
+                    
+                    if order and order['status'] == 'pending':
+                        token = secrets.token_urlsafe(32)
+                        expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
+                        
+                        cur.execute(
+                            "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at) VALUES (%s, %s, %s)",
+                            (token, plan, expires_at)
+                        )
+                        
+                        cur.execute(
+                            "UPDATE t_p8566807_chat_access_project.payment_orders SET status = %s WHERE invoice_id = %s",
+                            ('paid', invoice_id)
+                        )
+                        
+                        conn.commit()
+            finally:
+                conn.close()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'status': 'ok'})
+            }
+        
         plan = body_data.get('plan')
         
         if plan not in ['week', 'month']:
@@ -54,14 +102,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         inv_id = secrets.token_urlsafe(16)
         description = f"Подписка на {'неделю' if plan == 'week' else 'месяц'}"
         
-        success_url = "https://functions.poehali.dev/b923c572-0638-4906-b3f4-6d26f0d2edfb"
-        
-        signature_string = f"{merchant_login}:{amount}:{inv_id}:{password_1}"
-        signature = hashlib.md5(signature_string.encode()).hexdigest()
-        
-        from urllib.parse import quote
-        payment_url = f"https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin={merchant_login}&OutSum={amount}&InvId={inv_id}&Description={quote(description)}&SignatureValue={signature}&SuccessURL={quote(success_url)}&IsTest=1"
-        
         conn = psycopg2.connect(dsn)
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -73,92 +113,66 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         finally:
             conn.close()
         
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+        idempotence_key = secrets.token_urlsafe(32)
+        auth_string = f"{shop_id}:{secret_key}"
+        auth_header = base64.b64encode(auth_string.encode()).decode()
+        
+        return_url = f"https://functions.poehali.dev/b923c572-0638-4906-b3f4-6d26f0d2edfb?InvId={inv_id}"
+        
+        payment_data = {
+            "amount": {
+                "value": f"{amount}.00",
+                "currency": "RUB"
             },
-            'isBase64Encoded': False,
-            'body': json.dumps({
-                'payment_url': payment_url,
-                'invoice_id': inv_id
-            }, ensure_ascii=False)
+            "confirmation": {
+                "type": "redirect",
+                "return_url": return_url
+            },
+            "capture": True,
+            "description": description,
+            "metadata": {
+                "invoice_id": inv_id,
+                "plan": plan
+            }
         }
-    
-    if method == 'GET':
-        params = event.get('queryStringParameters', {})
-        out_sum = params.get('OutSum', '')
-        inv_id = params.get('InvId', '')
-        signature_value = params.get('SignatureValue', '')
         
-        if not all([out_sum, inv_id, signature_value]):
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({'error': 'Missing parameters'})
-            }
-        
-        expected_signature = hashlib.md5(f"{out_sum}:{inv_id}:{password_2}".encode()).hexdigest()
-        
-        if signature_value.lower() != expected_signature.lower():
-            return {
-                'statusCode': 403,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({'error': 'Invalid signature'})
-            }
-        
-        conn = psycopg2.connect(dsn)
         try:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    "SELECT plan FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = %s AND status = %s",
-                    (inv_id, 'pending')
-                )
-                order = cur.fetchone()
-                
-                if not order:
-                    return {
-                        'statusCode': 404,
-                        'headers': {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        'body': json.dumps({'error': 'Order not found'})
-                    }
-                
-                token = secrets.token_urlsafe(32)
-                plan = order['plan']
-                expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
-                
-                cur.execute(
-                    "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at) VALUES (%s, %s, %s)",
-                    (token, plan, expires_at)
-                )
-                
-                cur.execute(
-                    "UPDATE t_p8566807_chat_access_project.payment_orders SET status = %s WHERE invoice_id = %s",
-                    ('paid', inv_id)
-                )
-                
-                conn.commit()
+            req = urllib.request.Request(
+                'https://api.yookassa.ru/v3/payments',
+                data=json.dumps(payment_data).encode('utf-8'),
+                headers={
+                    'Authorization': f'Basic {auth_header}',
+                    'Idempotence-Key': idempotence_key,
+                    'Content-Type': 'application/json'
+                }
+            )
+            
+            with urllib.request.urlopen(req) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                confirmation_url = result['confirmation']['confirmation_url']
                 
                 return {
                     'statusCode': 200,
                     'headers': {
-                        'Content-Type': 'text/plain',
+                        'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': '*'
                     },
-                    'body': f"OK{inv_id}"
+                    'isBase64Encoded': False,
+                    'body': json.dumps({
+                        'payment_url': confirmation_url,
+                        'invoice_id': inv_id
+                    }, ensure_ascii=False)
                 }
-        finally:
-            conn.close()
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8')
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Payment creation failed', 'details': error_body})
+            }
     
     return {
         'statusCode': 405,
