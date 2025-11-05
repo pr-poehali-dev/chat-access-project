@@ -242,7 +242,24 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps({'error': 'Payment creation failed', 'details': error_body})
+                'body': json.dumps({
+                    'error': 'Payment creation failed', 
+                    'details': error_body,
+                    'http_code': e.code,
+                    'shop_id_length': len(shop_id) if shop_id else 0
+                }, ensure_ascii=False)
+            }
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': 'Unexpected error',
+                    'details': str(e)
+                }, ensure_ascii=False)
             }
     
     return {
