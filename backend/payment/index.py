@@ -18,6 +18,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Args: event - dict with httpMethod, body, queryStringParameters
           context - object with request_id
     Returns: HTTP response with payment URL or webhook confirmation
+    Version: 1.1
     '''
     method: str = event.get('httpMethod', 'GET')
     
