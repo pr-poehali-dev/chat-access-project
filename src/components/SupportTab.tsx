@@ -18,13 +18,25 @@ export default function SupportTab() {
     setIsLoading(true);
 
     try {
-      toast({
-        title: 'Ваше сообщение отправлено',
-        description: 'Мы свяжемся с вами в ближайшее время'
+      const response = await fetch('https://functions.poehali.dev/1a978b7d-cc76-4ab3-b9eb-11037b15657a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, message })
       });
-      setName('');
-      setEmail('');
-      setMessage('');
+
+      if (response.ok) {
+        toast({
+          title: 'Ваше сообщение отправлено',
+          description: 'Мы свяжемся с вами в ближайшее время'
+        });
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        throw new Error('Failed to send');
+      }
     } catch (error) {
       toast({
         title: 'Ошибка отправки',

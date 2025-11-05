@@ -52,15 +52,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     msg['Reply-To'] = user_email
     msg['Subject'] = f'Обращение в поддержку от {name}'
     
-    email_body = f"""
-Новое обращение в поддержку
+    email_body = f"""Новое обращение в поддержку
 
 От: {name}
 Email: {user_email}
 
 Сообщение:
-{message}
-    """
+{message}"""
     
     msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
     
