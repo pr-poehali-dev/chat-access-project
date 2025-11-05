@@ -2,8 +2,16 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface SubscriptionTabProps {
   subscription: any;
@@ -13,15 +21,36 @@ const PAYMENT_API = 'https://functions.poehali.dev/bafac542-4401-4a0c-8fc0-95ff9
 
 export default function SubscriptionTab({ subscription }: SubscriptionTabProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [email, setEmail] = useState('');
+  const [selectedPlan, setSelectedPlan] = useState<'week' | 'month' | null>(null);
   const { toast } = useToast();
 
-  const handlePayment = async (plan: 'week' | 'month') => {
+  const handlePaymentClick = (plan: 'week' | 'month') => {
+    setSelectedPlan(plan);
+    setShowEmailDialog(true);
+  };
+
+  const handlePayment = async () => {
+    if (!email || !selectedPlan) return;
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите корректный email',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsLoading(true);
+    setShowEmailDialog(false);
     try {
       const res = await fetch(PAYMENT_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan: selectedPlan, email })
       });
       
       const data = await res.json();
@@ -107,7 +136,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             </ul>
             <Button
               className="w-full"
-              onClick={() => handlePayment('week')}
+              onClick={() => handlePaymentClick('week')}
               disabled={subscription?.is_active || isLoading}
             >
               {isLoading ? 'Загрузка...' : 'Оплатить 999₽'}
@@ -143,7 +172,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             </ul>
             <Button
               className="w-full bg-primary hover:bg-primary/90"
-              onClick={() => handlePayment('month')}
+              onClick={() => handlePaymentClick('month')}
               disabled={subscription?.is_active || isLoading}
             >
               {isLoading ? 'Загрузка...' : 'Оплатить 3999₽'}
@@ -163,6 +192,29 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
           </p>
         </div>
       </Card>
+
+      <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Укажите ваш email</DialogTitle>
+            <DialogDescription>
+              На этот email придёт чек и токен для доступа к чату
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handlePayment()}
+            />
+            <Button className="w-full" onClick={handlePayment} disabled={!email}>
+              Перейти к оплате
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

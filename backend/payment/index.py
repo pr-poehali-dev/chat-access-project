@@ -158,6 +158,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         plan = body_data.get('plan')
+        email = body_data.get('email', 'customer@example.com')
         
         if plan not in ['week', 'month']:
             return {
@@ -204,7 +205,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             "description": description,
             "receipt": {
                 "customer": {
-                    "email": "customer@example.com"
+                    "email": email
                 },
                 "items": [
                     {
