@@ -74,9 +74,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn = psycopg2.connect(dsn)
             try:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                    safe_invoice_id = invoice_id.replace("'", "''")
                     cur.execute(
-                        "SELECT status FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = %s",
-                        (invoice_id,)
+                        f"SELECT status FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = '{safe_invoice_id}'"
                     )
                     order = cur.fetchone()
                     
@@ -84,14 +84,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         token = secrets.token_urlsafe(32)
                         expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
                         
+                        safe_token = token.replace("'", "''")
+                        safe_plan = plan.replace("'", "''")
+                        safe_email = (email or '').replace("'", "''")
+                        expires_str = expires_at.strftime('%Y-%m-%d %H:%M:%S')
+                        
                         cur.execute(
-                            "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at, email) VALUES (%s, %s, %s, %s)",
-                            (token, plan, expires_at, email)
+                            f"INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at, email) VALUES ('{safe_token}', '{safe_plan}', '{expires_str}', '{safe_email}')"
                         )
                         
                         cur.execute(
-                            "UPDATE t_p8566807_chat_access_project.payment_orders SET status = %s WHERE invoice_id = %s",
-                            ('paid', invoice_id)
+                            f"UPDATE t_p8566807_chat_access_project.payment_orders SET status = 'paid' WHERE invoice_id = '{safe_invoice_id}'"
                         )
                         
                         conn.commit()
@@ -172,9 +175,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         conn = psycopg2.connect(dsn)
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                safe_inv_id = inv_id.replace("'", "''")
+                safe_plan = plan.replace("'", "''")
                 cur.execute(
-                    "INSERT INTO t_p8566807_chat_access_project.payment_orders (invoice_id, plan, amount, status) VALUES (%s, %s, %s, %s)",
-                    (inv_id, plan, amount, 'pending')
+                    f"INSERT INTO t_p8566807_chat_access_project.payment_orders (invoice_id, plan, amount, status) VALUES ('{safe_inv_id}', '{safe_plan}', {amount}, 'pending')"
                 )
                 conn.commit()
         finally:
