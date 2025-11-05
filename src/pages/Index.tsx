@@ -94,8 +94,10 @@ export default function Index() {
       if (res.ok) {
         const data = await res.json();
         setSubscription(data);
-        if (data.is_active && activeTab === 'about') {
+        const hasAutoSwitched = sessionStorage.getItem('hasAutoSwitchedToChat');
+        if (data.is_active && activeTab === 'about' && !hasAutoSwitched) {
           setActiveTab('chat');
+          sessionStorage.setItem('hasAutoSwitchedToChat', 'true');
         }
       }
     } catch (error) {
