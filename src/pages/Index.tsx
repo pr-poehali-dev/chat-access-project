@@ -18,12 +18,15 @@ import ChatTab from '@/components/ChatTab';
 import SubscriptionTab from '@/components/SubscriptionTab';
 import RulesTab from '@/components/RulesTab';
 import SupportTab from '@/components/SupportTab';
+import AdminPanel from '@/components/AdminPanel';
 
 interface Message {
   id: number;
   content: string;
   created_at: string;
   reply_to?: number | null;
+  user_token?: string | null;
+  email?: string | null;
 }
 
 const CHAT_API = 'https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4d228';
@@ -251,7 +254,7 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 h-auto">
+          <TabsList className={`grid w-full h-auto ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
             <TabsTrigger value="about" className="flex-col gap-1 py-2 px-1">
               <Icon name="Info" size={18} />
               <span className="text-xs">О курсе</span>
@@ -272,6 +275,12 @@ export default function Index() {
               <Icon name="HeadphonesIcon" size={18} />
               <span className="text-xs">Помощь</span>
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="admin" className="flex-col gap-1 py-2 px-1">
+                <Icon name="Shield" size={18} />
+                <span className="text-xs">Админ</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="about" className="mt-6">
@@ -284,6 +293,7 @@ export default function Index() {
               newMessage={newMessage}
               isLoading={isLoading}
               notificationPermission={notificationPermission}
+              isAdmin={isAdmin}
               onMessageChange={setNewMessage}
               onSendMessage={sendMessage}
               onRequestNotifications={requestNotificationPermission}
@@ -303,6 +313,12 @@ export default function Index() {
           <TabsContent value="support" className="mt-6">
             <SupportTab />
           </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="admin" className="mt-6">
+              <AdminPanel token={token!} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 

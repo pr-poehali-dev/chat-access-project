@@ -10,6 +10,8 @@ interface Message {
   content: string;
   created_at: string;
   reply_to?: number | null;
+  user_token?: string | null;
+  email?: string | null;
 }
 
 interface ChatTabProps {
@@ -17,6 +19,7 @@ interface ChatTabProps {
   newMessage: string;
   isLoading: boolean;
   notificationPermission?: NotificationPermission;
+  isAdmin?: boolean;
   onMessageChange: (value: string) => void;
   onSendMessage: (replyTo?: number) => void;
   onRequestNotifications?: () => void;
@@ -27,6 +30,7 @@ export default function ChatTab({
   newMessage, 
   isLoading,
   notificationPermission,
+  isAdmin = false,
   onMessageChange, 
   onSendMessage,
   onRequestNotifications
@@ -86,6 +90,14 @@ export default function ChatTab({
                         <span className="text-xs text-muted-foreground">Ответ на:</span>
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-2">{parentMsg.content}</p>
+                    </div>
+                  )}
+                  {isAdmin && msg.email && (
+                    <div className="mb-2 flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        <Icon name="User" size={12} className="mr-1" />
+                        {msg.email || msg.user_token?.substring(0, 8)}
+                      </Badge>
                     </div>
                   )}
                   <p className="text-sm text-foreground mb-2">{msg.content}</p>

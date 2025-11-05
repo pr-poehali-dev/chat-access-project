@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "Get users without admin token",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 403
+    },
+    {
+      "name": "Block user without admin token",
+      "method": "PUT",
+      "path": "/",
+      "body": {
+        "user_token": "test_token",
+        "is_blocked": true
+      },
+      "expectedStatus": 403
+    }
+  ]
+}

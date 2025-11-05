@@ -45,6 +45,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             metadata = body_data['object'].get('metadata', {})
             invoice_id = metadata.get('invoice_id')
             plan = metadata.get('plan')
+            receipt = body_data['object'].get('receipt', {})
+            email = receipt.get('email') if receipt else None
             
             if not invoice_id or not plan:
                 return {
@@ -67,8 +69,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
                         
                         cur.execute(
-                            "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at) VALUES (%s, %s, %s)",
-                            (token, plan, expires_at)
+                            "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at, email) VALUES (%s, %s, %s, %s)",
+                            (token, plan, expires_at, email)
                         )
                         
                         cur.execute(
