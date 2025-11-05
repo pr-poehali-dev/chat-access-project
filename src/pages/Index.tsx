@@ -260,12 +260,14 @@ export default function Index() {
                 Админ-доступ
               </Button>
             )}
-            {isAdmin && (
+            {token && (
               <>
-                <Badge variant="default" className="gap-2">
-                  <Icon name="Shield" size={14} />
-                  Администратор
-                </Badge>
+                {isAdmin && (
+                  <Badge variant="default" className="gap-2">
+                    <Icon name="Shield" size={14} />
+                    Администратор
+                  </Badge>
+                )}
                 <Button 
                   onClick={() => {
                     localStorage.removeItem('userToken');
@@ -275,7 +277,7 @@ export default function Index() {
                     setActiveTab('about');
                     toast({
                       title: 'Выход выполнен',
-                      description: 'Вы вышли из админ-панели'
+                      description: 'Вы вышли из аккаунта'
                     });
                   }}
                   variant="outline"
