@@ -43,7 +43,9 @@ export default function Index() {
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [userToken, setUserToken] = useState('');
   const { toast } = useToast();
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
@@ -250,15 +252,26 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-3">
             {!token && (
-              <Button 
-                onClick={() => setShowAdminDialog(true)}
-                variant="outline"
-                className="gap-2"
-                size="sm"
-              >
-                <Icon name="Key" size={16} />
-                Админ-доступ
-              </Button>
+              <>
+                <Button 
+                  onClick={() => setShowTokenDialog(true)}
+                  variant="default"
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Icon name="Key" size={16} />
+                  Войти с токеном
+                </Button>
+                <Button 
+                  onClick={() => setShowAdminDialog(true)}
+                  variant="outline"
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Icon name="Shield" size={16} />
+                  Админ
+                </Button>
+              </>
             )}
             {token && (
               <>
@@ -509,6 +522,80 @@ export default function Index() {
                 onClick={() => {
                   setShowAdminDialog(false);
                   setAdminPassword('');
+                }}
+              >
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Key" size={24} className="text-primary" />
+              Вход по токену
+            </DialogTitle>
+            <DialogDescription>
+              Введите токен доступа, который вы получили на email после оплаты
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div>
+              <Input
+                type="text"
+                placeholder="Вставьте ваш токен"
+                value={userToken}
+                onChange={(e) => setUserToken(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && userToken.trim()) {
+                    localStorage.setItem('userToken', userToken.trim());
+                    setToken(userToken.trim());
+                    setShowTokenDialog(false);
+                    setUserToken('');
+                    loadSubscription();
+                    toast({
+                      title: 'Токен сохранен! 🔑',
+                      description: 'Проверяем доступ...',
+                    });
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  if (userToken.trim()) {
+                    localStorage.setItem('userToken', userToken.trim());
+                    setToken(userToken.trim());
+                    setShowTokenDialog(false);
+                    setUserToken('');
+                    loadSubscription();
+                    toast({
+                      title: 'Токен сохранен! 🔑',
+                      description: 'Проверяем доступ...',
+                    });
+                  } else {
+                    toast({
+                      title: 'Ошибка',
+                      description: 'Введите токен',
+                      variant: 'destructive',
+                    });
+                  }
+                }}
+              >
+                Войти
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowTokenDialog(false);
+                  setUserToken('');
                 }}
               >
                 Отмена

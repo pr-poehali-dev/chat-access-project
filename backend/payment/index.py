@@ -8,6 +8,9 @@ from datetime import datetime, timedelta
 import secrets
 import urllib.request
 import urllib.error
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -79,6 +82,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         )
                         
                         conn.commit()
+                        
+                        if email:
+                            try:
+                                chat_url = 'https://chat.bankrot-kurs.ru'
+                                plan_name = 'неделю' if plan == 'week' else 'месяц'
+                                expires_date = expires_at.strftime('%d.%m.%Y')
+                                
+                                msg = MIMEMultipart()
+                                msg['From'] = 'melni-v@yandex.ru'
+                                msg['To'] = email
+                                msg['Subject'] = 'Доступ к закрытому чату курса "Банкротство физических лиц"'
+                                
+                                email_body = f"""Здравствуйте!
+
+Спасибо за оплату подписки на {plan_name}!
+
+Ваш доступ к закрытому чату активирован до {expires_date}.
+
+🔑 Ваш персональный токен доступа:
+{token}
+
+📱 Ссылка на чат:
+{chat_url}
+
+Инструкция по входу:
+1. Перейдите по ссылке: {chat_url}
+2. Нажмите "Войти с токеном"
+3. Вставьте ваш токен доступа
+4. Готово! Вы в чате
+
+Важно:
+- Сохраните этот токен - он понадобится для входа
+- Токен действителен до {expires_date}
+- Не передавайте токен другим людям
+
+По всем вопросам пишите на melni-v@yandex.ru
+
+С уважением,
+Команда курса "Банкротство физических лиц"
+Валентина Голосова"""
+                                
+                                msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
+                                
+                                with smtplib.SMTP('smtp.yandex.ru', 587) as server:
+                                    server.starttls()
+                                    server.login('melni-v@yandex.ru', 'vxktzlglebdbwlti')
+                                    server.send_message(msg)
+                            except Exception as e:
+                                pass
             finally:
                 conn.close()
             
