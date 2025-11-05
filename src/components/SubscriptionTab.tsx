@@ -1,13 +1,50 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface SubscriptionTabProps {
   subscription: any;
 }
 
+const PAYMENT_API = 'https://functions.poehali.dev/bafac542-4401-4a0c-8fc0-95ff945b8768';
+
 export default function SubscriptionTab({ subscription }: SubscriptionTabProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handlePayment = async (plan: 'week' | 'month') => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(PAYMENT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok && data.payment_url) {
+        window.location.href = data.payment_url;
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось создать платёж',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Проблема с подключением к платёжной системе',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="space-y-6">
       {subscription?.is_active ? (
@@ -40,19 +77,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             </div>
           </Card>
           
-          <Card className="p-6 bg-blue-500/10 border-blue-500/30">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <Icon name="Key" size={24} className="text-blue-600 shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-semibold mb-2">Уже оплатили? Введите код доступа</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    После оплаты в Telegram вы получите специальный код. Используйте кнопку "Админ-доступ" в шапке сайта и введите полученный код.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
+
         </div>
       )}
 
@@ -80,12 +105,10 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             </ul>
             <Button
               className="w-full"
-              disabled={subscription?.is_active}
-              asChild
+              onClick={() => handlePayment('week')}
+              disabled={subscription?.is_active || isLoading}
             >
-              <a href="https://t.me/+xLtBoM03p74xNjRi" target="_blank" rel="noopener noreferrer">
-                Оформить на неделю
-              </a>
+              {isLoading ? 'Загрузка...' : 'Оплатить 299₽'}
             </Button>
           </div>
         </Card>
@@ -118,12 +141,10 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
             </ul>
             <Button
               className="w-full bg-primary hover:bg-primary/90"
-              disabled={subscription?.is_active}
-              asChild
+              onClick={() => handlePayment('month')}
+              disabled={subscription?.is_active || isLoading}
             >
-              <a href="https://t.me/+xLtBoM03p74xNjRi" target="_blank" rel="noopener noreferrer">
-                Оформить на месяц
-              </a>
+              {isLoading ? 'Загрузка...' : 'Оплатить 999₽'}
             </Button>
           </div>
         </Card>
@@ -132,11 +153,11 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
       <Card className="p-4 bg-primary/10 border-primary/30">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2 text-primary font-semibold">
-            <Icon name="MessageCircle" size={18} />
-            <span>Оплата через Telegram</span>
+            <Icon name="CreditCard" size={18} />
+            <span>Безопасная оплата</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Нажмите кнопку "Оформить" чтобы перейти в Telegram и получить инструкции по оплате. После оплаты вы получите код доступа к чату.
+            Платежи обрабатываются через Robokassa. После успешной оплаты доступ к чату откроется автоматически.
           </p>
         </div>
       </Card>

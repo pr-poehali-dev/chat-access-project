@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Create payment without plan",
+      "method": "POST",
+      "body": {},
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create payment with valid plan",
+      "method": "POST",
+      "body": {
+        "plan": "month"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "payment_url": "string",
+        "invoice_id": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

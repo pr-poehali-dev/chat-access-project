@@ -1,4 +1,6 @@
 {
+  "payment-success": "https://functions.poehali.dev/b923c572-0638-4906-b3f4-6d26f0d2edfb",
+  "payment": "https://functions.poehali.dev/bafac542-4401-4a0c-8fc0-95ff945b8768",
   "send-email": "https://functions.poehali.dev/1a978b7d-cc76-4ab3-b9eb-11037b15657a",
   "subscription": "https://functions.poehali.dev/957d493f-5bdb-4f6b-9b96-4f755f9d1d9b",
   "chat": "https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4d228"

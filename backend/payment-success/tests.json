@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "name": "Redirect without invoice ID",
+      "method": "GET",
+      "expectedStatus": 400,
+      "bodyMatcher": "partial"
+    }
+  ]
+}
