@@ -482,7 +482,9 @@ export default function Index() {
                 onClick={() => {
                   if (adminPassword === 'ValentinaGolosova2024') {
                     localStorage.setItem('userToken', 'admin_forever_access_2024');
+                    localStorage.setItem('isAdmin', 'true');
                     setToken('admin_forever_access_2024');
+                    setIsAdmin(true);
                     setShowAdminDialog(false);
                     setAdminPassword('');
                     toast({
