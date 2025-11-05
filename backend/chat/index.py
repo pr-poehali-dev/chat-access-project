@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 
                 cur.execute(
-                    "SELECT id, content, created_at FROM messages ORDER BY created_at DESC LIMIT 100"
+                    "SELECT id, content, reply_to, created_at FROM t_p8566807_chat_access_project.messages ORDER BY created_at DESC LIMIT 100"
                 )
                 messages = cur.fetchall()
                 
@@ -81,6 +81,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             {
                                 'id': msg['id'],
                                 'content': msg['content'],
+                                'reply_to': msg['reply_to'],
                                 'created_at': msg['created_at'].isoformat()
                             }
                             for msg in messages
@@ -101,6 +102,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             body_data = json.loads(event.get('body', '{}'))
             content = body_data.get('content', '').strip()
+            reply_to = body_data.get('reply_to')
             
             if not content:
                 return {
@@ -133,8 +135,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 
                 cur.execute(
-                    "INSERT INTO messages (content) VALUES (%s) RETURNING id, content, created_at",
-                    (content,)
+                    "INSERT INTO t_p8566807_chat_access_project.messages (content, reply_to) VALUES (%s, %s) RETURNING id, content, reply_to, created_at",
+                    (content, reply_to)
                 )
                 new_msg = cur.fetchone()
                 conn.commit()
@@ -149,6 +151,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({
                         'id': new_msg['id'],
                         'content': new_msg['content'],
+                        'reply_to': new_msg['reply_to'],
                         'created_at': new_msg['created_at'].isoformat()
                     }, ensure_ascii=False)
                 }

@@ -23,6 +23,7 @@ interface Message {
   id: number;
   content: string;
   created_at: string;
+  reply_to?: number | null;
 }
 
 const CHAT_API = 'https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4d228';
@@ -192,7 +193,7 @@ export default function Index() {
     }
   };
 
-  const sendMessage = async () => {
+  const sendMessage = async (replyTo?: number) => {
     if (!newMessage.trim() || !token) return;
     setIsLoading(true);
     try {
@@ -202,7 +203,10 @@ export default function Index() {
           'Content-Type': 'application/json',
           'X-User-Token': token
         },
-        body: JSON.stringify({ content: newMessage })
+        body: JSON.stringify({ 
+          content: newMessage,
+          reply_to: replyTo || null
+        })
       });
       if (res.ok) {
         setNewMessage('');
