@@ -5,11 +5,9 @@ import Icon from '@/components/ui/icon';
 
 interface SubscriptionTabProps {
   subscription: any;
-  isLoading: boolean;
-  onCreateSubscription: (plan: 'week' | 'month') => void;
 }
 
-export default function SubscriptionTab({ subscription, isLoading, onCreateSubscription }: SubscriptionTabProps) {
+export default function SubscriptionTab({ subscription }: SubscriptionTabProps) {
   return (
     <div className="space-y-6">
       {subscription?.is_active ? (
@@ -31,15 +29,31 @@ export default function SubscriptionTab({ subscription, isLoading, onCreateSubsc
           </div>
         </Card>
       ) : (
-        <Card className="p-6 bg-muted/30">
-          <div className="text-center">
-            <Icon name="Lock" size={48} className="mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mb-2">Доступ к чату закрыт</h3>
-            <p className="text-muted-foreground">
-              Оформите подписку, чтобы получить доступ к закрытому сообществу участников курса
-            </p>
-          </div>
-        </Card>
+        <div className="space-y-4">
+          <Card className="p-6 bg-muted/30">
+            <div className="text-center">
+              <Icon name="Lock" size={48} className="mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-xl font-semibold mb-2">Доступ к чату закрыт</h3>
+              <p className="text-muted-foreground">
+                Оформите подписку, чтобы получить доступ к закрытому сообществу участников курса
+              </p>
+            </div>
+          </Card>
+          
+          <Card className="p-6 bg-blue-500/10 border-blue-500/30">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <Icon name="Key" size={24} className="text-blue-600 shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold mb-2">Уже оплатили? Введите код доступа</h4>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    После оплаты в Telegram вы получите специальный код. Используйте кнопку "Админ-доступ" в шапке сайта и введите полученный код.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -66,10 +80,12 @@ export default function SubscriptionTab({ subscription, isLoading, onCreateSubsc
             </ul>
             <Button
               className="w-full"
-              onClick={() => onCreateSubscription('week')}
-              disabled={isLoading || subscription?.is_active}
+              disabled={subscription?.is_active}
+              asChild
             >
-              Оформить на неделю
+              <a href="https://t.me/+xLtBoM03p74xNjRi" target="_blank" rel="noopener noreferrer">
+                Оформить на неделю
+              </a>
             </Button>
           </div>
         </Card>
@@ -102,20 +118,27 @@ export default function SubscriptionTab({ subscription, isLoading, onCreateSubsc
             </ul>
             <Button
               className="w-full bg-primary hover:bg-primary/90"
-              onClick={() => onCreateSubscription('month')}
-              disabled={isLoading || subscription?.is_active}
+              disabled={subscription?.is_active}
+              asChild
             >
-              Оформить на месяц
+              <a href="https://t.me/+xLtBoM03p74xNjRi" target="_blank" rel="noopener noreferrer">
+                Оформить на месяц
+              </a>
             </Button>
           </div>
         </Card>
       </div>
 
-      <Card className="p-4 bg-muted/30">
-        <p className="text-sm text-muted-foreground text-center">
-          <Icon name="Info" size={16} className="inline mr-1" />
-          После оформления подписки вы получите немедленный доступ к чату участников
-        </p>
+      <Card className="p-4 bg-primary/10 border-primary/30">
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 text-primary font-semibold">
+            <Icon name="MessageCircle" size={18} />
+            <span>Оплата через Telegram</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Нажмите кнопку "Оформить" чтобы перейти в Telegram и получить инструкции по оплате. После оплаты вы получите код доступа к чату.
+          </p>
+        </div>
       </Card>
     </div>
   );

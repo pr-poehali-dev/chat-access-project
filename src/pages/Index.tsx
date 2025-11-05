@@ -165,33 +165,7 @@ export default function Index() {
     }
   };
 
-  const createSubscription = async (plan: 'week' | 'month') => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(SUB_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        localStorage.setItem('userToken', data.token);
-        setToken(data.token);
-        toast({
-          title: 'Подписка оформлена',
-          description: `Доступ активен до ${new Date(data.expires_at).toLocaleDateString('ru-RU')}`
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось оформить подписку',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
 
   const sendMessage = async (replyTo?: number) => {
     if (!newMessage.trim() || !token) return;
@@ -276,26 +250,26 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="about">
-              <Icon name="Info" size={16} className="mr-2" />
-              О курсе
+          <TabsList className="grid w-full grid-cols-5 h-auto">
+            <TabsTrigger value="about" className="flex-col gap-1 py-2 px-1">
+              <Icon name="Info" size={18} />
+              <span className="text-xs">О курсе</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" disabled={!token || !subscription?.is_active}>
-              <Icon name="MessageSquare" size={16} className="mr-2" />
-              Чат
+            <TabsTrigger value="chat" disabled={!token || !subscription?.is_active} className="flex-col gap-1 py-2 px-1">
+              <Icon name="MessageSquare" size={18} />
+              <span className="text-xs">Чат</span>
             </TabsTrigger>
-            <TabsTrigger value="subscription">
-              <Icon name="CreditCard" size={16} className="mr-2" />
-              Тарифы
+            <TabsTrigger value="subscription" className="flex-col gap-1 py-2 px-1">
+              <Icon name="CreditCard" size={18} />
+              <span className="text-xs">Тарифы</span>
             </TabsTrigger>
-            <TabsTrigger value="rules">
-              <Icon name="FileText" size={16} className="mr-2" />
-              Правила
+            <TabsTrigger value="rules" className="flex-col gap-1 py-2 px-1">
+              <Icon name="FileText" size={18} />
+              <span className="text-xs">Правила</span>
             </TabsTrigger>
-            <TabsTrigger value="support">
-              <Icon name="HeadphonesIcon" size={16} className="mr-2" />
-              Поддержка
+            <TabsTrigger value="support" className="flex-col gap-1 py-2 px-1">
+              <Icon name="HeadphonesIcon" size={18} />
+              <span className="text-xs">Помощь</span>
             </TabsTrigger>
           </TabsList>
 
@@ -318,8 +292,6 @@ export default function Index() {
           <TabsContent value="subscription" className="mt-6">
             <SubscriptionTab
               subscription={subscription}
-              isLoading={isLoading}
-              onCreateSubscription={createSubscription}
             />
           </TabsContent>
 
