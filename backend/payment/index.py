@@ -202,6 +202,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             "capture": True,
             "description": description,
+            "receipt": {
+                "customer": {
+                    "email": "customer@example.com"
+                },
+                "items": [
+                    {
+                        "description": description,
+                        "quantity": "1",
+                        "amount": {
+                            "value": f"{amount}.00",
+                            "currency": "RUB"
+                        },
+                        "vat_code": 1
+                    }
+                ]
+            },
             "metadata": {
                 "invoice_id": inv_id,
                 "plan": plan
