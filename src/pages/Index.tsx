@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import AboutTab from '@/components/AboutTab';
@@ -216,12 +217,22 @@ export default function Index() {
               <p className="text-xs text-muted-foreground">Закрытое сообщество курса Валентины Голосовой</p>
             </div>
           </div>
-          {subscription?.is_active && (
-            <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
-              <Icon name="CheckCircle" size={14} />
-              Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
-            </Badge>
-          )}
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={() => window.location.reload()}
+              className="gap-2"
+              size="sm"
+            >
+              <Icon name="Smartphone" size={16} />
+              Скачать приложение
+            </Button>
+            {subscription?.is_active && (
+              <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
+                <Icon name="CheckCircle" size={14} />
+                Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
+              </Badge>
+            )}
+          </div>
         </div>
       </header>
 
