@@ -37,6 +37,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     secret_key = os.environ.get('YOOKASSA_SECRET_KEY')
     dsn = os.environ.get('DATABASE_URL')
     
+    if not shop_id or not secret_key:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'error': 'YooKassa credentials not configured. Please contact administrator.',
+                'details': f'shop_id: {bool(shop_id)}, secret_key: {bool(secret_key)}'
+            })
+        }
+    
     if method == 'POST':
         body_str = event.get('body') or '{}'
         if body_str.strip() == '':
