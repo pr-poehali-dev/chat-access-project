@@ -214,7 +214,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             "value": f"{amount}.00",
                             "currency": "RUB"
                         },
-                        "vat_code": 1
+                        "vat_code": 1,
+                        "payment_subject": "service",
+                        "payment_mode": "full_payment"
                     }
                 ]
             },
