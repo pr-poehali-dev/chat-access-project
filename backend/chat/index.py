@@ -65,7 +65,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 
                 cur.execute(
-                    "SELECT id, content, reply_to, created_at FROM t_p8566807_chat_access_project.messages ORDER BY created_at DESC LIMIT 100"
+                    "SELECT id, content, reply_to, created_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY created_at DESC"
                 )
                 messages = cur.fetchall()
                 
