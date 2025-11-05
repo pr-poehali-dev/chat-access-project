@@ -165,10 +165,6 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
                 <Icon name="Check" size={20} className="text-secondary shrink-0 mt-0.5" />
                 <span className="text-sm">Поддержка куратора</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Icon name="Check" size={20} className="text-secondary shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-primary">Экономия 1000₽</span>
-              </li>
             </ul>
             <Button
               className="w-full bg-primary hover:bg-primary/90"
