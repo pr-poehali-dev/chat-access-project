@@ -46,6 +46,8 @@ export default function Index() {
   const [adminPassword, setAdminPassword] = useState('');
   const { toast } = useToast();
 
+  console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
+
   useEffect(() => {
     if ('Notification' in window) {
       setNotificationPermission(Notification.permission);
@@ -258,6 +260,33 @@ export default function Index() {
                 Админ-доступ
               </Button>
             )}
+            {isAdmin && (
+              <>
+                <Badge variant="default" className="gap-2">
+                  <Icon name="Shield" size={14} />
+                  Администратор
+                </Badge>
+                <Button 
+                  onClick={() => {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('isAdmin');
+                    setToken(null);
+                    setIsAdmin(false);
+                    setActiveTab('about');
+                    toast({
+                      title: 'Выход выполнен',
+                      description: 'Вы вышли из админ-панели'
+                    });
+                  }}
+                  variant="outline"
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Icon name="LogOut" size={16} />
+                  Выйти
+                </Button>
+              </>
+            )}
             <Button 
               onClick={() => setShowInstallDialog(true)}
               className="gap-2"
@@ -266,7 +295,7 @@ export default function Index() {
               <Icon name="Smartphone" size={16} />
               Скачать приложение
             </Button>
-            {subscription?.is_active && (
+            {subscription?.is_active && !isAdmin && (
               <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
                 <Icon name="CheckCircle" size={14} />
                 Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
