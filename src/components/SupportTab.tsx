@@ -114,23 +114,43 @@ export default function SupportTab() {
         </form>
       </Card>
 
-      <Card className="p-6 bg-muted/30">
-        <h4 className="font-semibold mb-3 flex items-center gap-2">
-          <Icon name="Clock" size={18} className="text-primary" />
-          Время ответа
-        </h4>
-        <p className="text-sm text-muted-foreground mb-4">
-          Мы стараемся отвечать на все обращения в течение 24 часов. В период высокой нагрузки ответ может занять до 48 часов.
-        </p>
+      <div className="grid md:grid-cols-2 gap-4">
+        <Card className="p-6 bg-muted/30">
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <Icon name="Clock" size={18} className="text-primary" />
+            Время ответа
+          </h4>
+          <p className="text-sm text-muted-foreground mb-4">
+            Мы стараемся отвечать на все обращения в течение 24 часов. В период высокой нагрузки ответ может занять до 48 часов.
+          </p>
 
-        <h4 className="font-semibold mb-3 flex items-center gap-2">
-          <Icon name="Mail" size={18} className="text-primary" />
-          Альтернативная связь
-        </h4>
-        <p className="text-sm text-muted-foreground">
-          Вы также можете написать нам напрямую на почту: <span className="font-medium text-foreground">melni-v@yandex.ru</span>
-        </p>
-      </Card>
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <Icon name="Mail" size={18} className="text-primary" />
+            Email
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">melni-v@yandex.ru</span>
+          </p>
+        </Card>
+
+        <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/30">
+          <h4 className="font-semibold mb-3 flex items-center gap-2">
+            <Icon name="MessageCircle" size={18} className="text-blue-600" />
+            Telegram поддержка
+          </h4>
+          <p className="text-sm text-muted-foreground mb-4">
+            Получите быструю помощь в нашем Telegram-канале. Наши специалисты онлайн и готовы ответить на ваши вопросы.
+          </p>
+          <Button 
+            variant="outline" 
+            className="w-full gap-2 border-blue-500/50 hover:bg-blue-500/10"
+            onClick={() => window.open('https://t.me/+xLtBoM03p74xNjRi', '_blank')}
+          >
+            <Icon name="ExternalLink" size={16} />
+            Написать в Telegram
+          </Button>
+        </Card>
+      </div>
 
       <Card className="p-4 bg-secondary/10 border-secondary/30">
         <div className="flex gap-3">
