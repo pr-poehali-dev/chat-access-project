@@ -14,6 +14,8 @@ interface Message {
   reply_to?: number | null;
   user_token?: string | null;
   email?: string | null;
+  is_pinned?: boolean;
+  edited_at?: string | null;
 }
 
 interface ChatTabProps {
@@ -22,10 +24,13 @@ interface ChatTabProps {
   isLoading: boolean;
   notificationPermission?: NotificationPermission;
   isAdmin?: boolean;
+  currentUserToken?: string | null;
   onMessageChange: (value: string) => void;
   onSendMessage: (replyTo?: number, imageUrl?: string) => void;
   onRequestNotifications?: () => void;
   onDeleteMessage?: (messageId: number) => void;
+  onTogglePinMessage?: (messageId: number, isPinned: boolean) => void;
+  onEditMessage?: (messageId: number, newContent: string) => void;
 }
 
 export default function ChatTab({ 
@@ -34,15 +39,20 @@ export default function ChatTab({
   isLoading,
   notificationPermission,
   isAdmin = false,
+  currentUserToken,
   onMessageChange, 
   onSendMessage,
   onRequestNotifications,
-  onDeleteMessage
+  onDeleteMessage,
+  onTogglePinMessage,
+  onEditMessage
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [editContent, setEditContent] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +85,31 @@ export default function ChatTab({
     setSelectedImage(null);
     setImagePreview('');
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const startEdit = (msg: Message) => {
+    setEditingMessage(msg);
+    setEditContent(msg.content);
+  };
+
+  const cancelEdit = () => {
+    setEditingMessage(null);
+    setEditContent('');
+  };
+
+  const saveEdit = () => {
+    if (editingMessage && onEditMessage && editContent.trim()) {
+      onEditMessage(editingMessage.id, editContent.trim());
+      cancelEdit();
+    }
+  };
+
+  const canEdit = (msg: Message) => {
+    if (!currentUserToken || msg.user_token !== currentUserToken) return false;
+    const createdAt = new Date(msg.created_at);
+    const now = new Date();
+    const diffMinutes = (now.getTime() - createdAt.getTime()) / 1000 / 60;
+    return diffMinutes <= 5;
   };
   return (
     <Card className="p-6">
@@ -120,13 +155,21 @@ export default function ChatTab({
                   <div key={msg.id} className="space-y-2">
                     <div 
                       className={`p-3 rounded-lg border transition-colors ${
-                        hasReplies || isReply
+                        msg.is_pinned
+                          ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
+                          : hasReplies || isReply
                           ? 'bg-card border-border' 
                           : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
                       }`}
                       style={{ marginLeft: `${depth * 24}px` }}
                     >
-                      <div className="mb-2 flex items-center gap-2">
+                      <div className="mb-2 flex items-center gap-2 flex-wrap">
+                        {msg.is_pinned && (
+                          <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground">
+                            <Icon name="Pin" size={12} className="mr-1" />
+                            Закреплено
+                          </Badge>
+                        )}
                         {msg.author_name && (() => {
                           const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
                           const nameHash = msg.author_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -154,6 +197,12 @@ export default function ChatTab({
                             {msg.email || msg.user_token?.substring(0, 8)}
                           </Badge>
                         )}
+                        {msg.edited_at && (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            <Icon name="Edit" size={12} className="mr-1" />
+                            изменено
+                          </Badge>
+                        )}
                       </div>
                       {msg.image_url && (
                         <img 
@@ -163,12 +212,33 @@ export default function ChatTab({
                           onClick={() => setFullscreenImage(msg.image_url!)}
                         />
                       )}
-                      {msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>}
+                      {editingMessage?.id === msg.id ? (
+                        <div className="space-y-2 mb-2">
+                          <Textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            className="min-h-[60px]"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={saveEdit} className="gap-1">
+                              <Icon name="Check" size={14} />
+                              Сохранить
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={cancelEdit} className="gap-1">
+                              <Icon name="X" size={14} />
+                              Отмена
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
                           {new Date(msg.created_at).toLocaleString('ru-RU')}
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 flex-wrap">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -178,6 +248,28 @@ export default function ChatTab({
                             <Icon name="Reply" size={14} />
                             <span className="text-xs">Ответить</span>
                           </Button>
+                          {canEdit(msg) && onEditMessage && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 px-2 gap-1"
+                              onClick={() => startEdit(msg)}
+                            >
+                              <Icon name="Edit" size={14} />
+                              <span className="text-xs">Редактировать</span>
+                            </Button>
+                          )}
+                          {isAdmin && onTogglePinMessage && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className={`h-6 px-2 gap-1 ${msg.is_pinned ? 'text-secondary' : ''}`}
+                              onClick={() => onTogglePinMessage(msg.id, msg.is_pinned || false)}
+                            >
+                              <Icon name={msg.is_pinned ? "PinOff" : "Pin"} size={14} />
+                              <span className="text-xs">{msg.is_pinned ? 'Открепить' : 'Закрепить'}</span>
+                            </Button>
+                          )}
                           {isAdmin && onDeleteMessage && (
                             <Button
                               size="sm"

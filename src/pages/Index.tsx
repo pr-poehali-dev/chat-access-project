@@ -21,6 +21,8 @@ interface Message {
   reply_to?: number | null;
   user_token?: string | null;
   email?: string | null;
+  is_pinned?: boolean;
+  edited_at?: string | null;
 }
 
 const CHAT_API = 'https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4d228';
@@ -288,6 +290,68 @@ export default function Index() {
     }
   };
 
+  const togglePinMessage = async (messageId: number, isPinned: boolean) => {
+    if (!token || !isAdmin) return;
+    try {
+      const res = await fetch(`${CHAT_API}?id=${messageId}&action=pin`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Token': token
+        },
+        body: JSON.stringify({ is_pinned: !isPinned })
+      });
+      if (res.ok) {
+        await loadMessages();
+        toast({
+          title: isPinned ? 'Сообщение откреплено' : 'Сообщение закреплено'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const editMessage = async (messageId: number, newContent: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${CHAT_API}?id=${messageId}&action=edit`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Token': token
+        },
+        body: JSON.stringify({ content: newContent })
+      });
+      if (res.ok) {
+        await loadMessages();
+        toast({
+          title: 'Сообщение отредактировано'
+        });
+      } else {
+        const data = await res.json();
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось отредактировать',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка редактирования',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader
@@ -344,10 +408,13 @@ export default function Index() {
               isLoading={isLoading}
               notificationPermission={notificationPermission}
               isAdmin={isAdmin}
+              currentUserToken={token}
               onMessageChange={setNewMessage}
               onSendMessage={sendMessage}
               onRequestNotifications={requestNotificationPermission}
               onDeleteMessage={deleteMessage}
+              onTogglePinMessage={togglePinMessage}
+              onEditMessage={editMessage}
             />
           </TabsContent>
 

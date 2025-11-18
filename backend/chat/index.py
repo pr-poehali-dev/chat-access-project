@@ -19,7 +19,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -68,11 +68,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if is_admin:
                     cur.execute(
-                        "SELECT m.id, m.content, m.image_url, m.author_name, m.reply_to, m.created_at, m.user_token, s.email FROM t_p8566807_chat_access_project.messages m LEFT JOIN t_p8566807_chat_access_project.subscriptions s ON m.user_token = s.user_token WHERE m.created_at >= NOW() - INTERVAL '24 hours' ORDER BY m.created_at DESC"
+                        "SELECT m.id, m.content, m.image_url, m.author_name, m.reply_to, m.created_at, m.is_pinned, m.edited_at, m.user_token, s.email FROM t_p8566807_chat_access_project.messages m LEFT JOIN t_p8566807_chat_access_project.subscriptions s ON m.user_token = s.user_token WHERE m.created_at >= NOW() - INTERVAL '24 hours' ORDER BY m.is_pinned DESC, m.created_at DESC"
                     )
                 else:
                     cur.execute(
-                        "SELECT id, content, image_url, author_name, reply_to, created_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY created_at DESC"
+                        "SELECT id, content, image_url, author_name, reply_to, created_at, is_pinned, edited_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY is_pinned DESC, created_at DESC"
                     )
                 messages = cur.fetchall()
                 
@@ -92,6 +92,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'author_name': msg.get('author_name'),
                                 'reply_to': msg['reply_to'],
                                 'created_at': msg['created_at'].isoformat(),
+                                'is_pinned': msg.get('is_pinned', False),
+                                'edited_at': msg['edited_at'].isoformat() if msg.get('edited_at') else None,
                                 'user_token': msg.get('user_token') if is_admin else None,
                                 'email': msg.get('email') if is_admin else None
                             }
@@ -242,6 +244,146 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'reply_to': new_msg['reply_to'],
                         'created_at': new_msg['created_at'].isoformat()
                     }, ensure_ascii=False)
+                }
+        
+        if method == 'PATCH':
+            if not user_token:
+                return {
+                    'statusCode': 401,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Token required'})
+                }
+            
+            query_params = event.get('queryStringParameters', {}) or {}
+            message_id = query_params.get('id')
+            action = query_params.get('action')
+            
+            if not message_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Message ID required'})
+                }
+            
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                if action == 'pin':
+                    is_admin = user_token in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']
+                    if not is_admin:
+                        return {
+                            'statusCode': 403,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Admin access required'})
+                        }
+                    
+                    body_data = json.loads(event.get('body', '{}'))
+                    is_pinned = body_data.get('is_pinned', False)
+                    
+                    cur.execute(
+                        "UPDATE t_p8566807_chat_access_project.messages SET is_pinned = %s WHERE id = %s RETURNING id, is_pinned",
+                        (is_pinned, message_id)
+                    )
+                    updated_msg = cur.fetchone()
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'success': True, 'id': updated_msg['id'], 'is_pinned': updated_msg['is_pinned']}, ensure_ascii=False)
+                    }
+                
+                elif action == 'edit':
+                    cur.execute(
+                        "SELECT user_token, created_at FROM t_p8566807_chat_access_project.messages WHERE id = %s",
+                        (message_id,)
+                    )
+                    msg = cur.fetchone()
+                    
+                    if not msg:
+                        return {
+                            'statusCode': 404,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Message not found'})
+                        }
+                    
+                    if msg['user_token'] != user_token:
+                        return {
+                            'statusCode': 403,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Can only edit your own messages'})
+                        }
+                    
+                    time_diff = (datetime.now() - msg['created_at']).total_seconds()
+                    if time_diff > 300:
+                        return {
+                            'statusCode': 403,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Can only edit messages within 5 minutes'})
+                        }
+                    
+                    body_data = json.loads(event.get('body', '{}'))
+                    new_content = body_data.get('content', '').strip()
+                    
+                    if not new_content:
+                        return {
+                            'statusCode': 400,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Content required'})
+                        }
+                    
+                    cur.execute(
+                        "UPDATE t_p8566807_chat_access_project.messages SET content = %s, edited_at = NOW() WHERE id = %s RETURNING id, content, edited_at",
+                        (new_content, message_id)
+                    )
+                    updated_msg = cur.fetchone()
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'isBase64Encoded': False,
+                        'body': json.dumps({
+                            'success': True,
+                            'id': updated_msg['id'],
+                            'content': updated_msg['content'],
+                            'edited_at': updated_msg['edited_at'].isoformat()
+                        }, ensure_ascii=False)
+                    }
+                
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Invalid action'})
                 }
         
         return {

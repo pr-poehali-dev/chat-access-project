@@ -29,6 +29,30 @@
         "X-User-Token": "regular_user_token"
       },
       "expectedStatus": 403
+    },
+    {
+      "name": "Pin message without admin rights",
+      "method": "PATCH",
+      "path": "/?id=1&action=pin",
+      "headers": {
+        "X-User-Token": "regular_user_token"
+      },
+      "body": {
+        "is_pinned": true
+      },
+      "expectedStatus": 403
+    },
+    {
+      "name": "Edit message without ID",
+      "method": "PATCH",
+      "path": "/?action=edit",
+      "headers": {
+        "X-User-Token": "some_token"
+      },
+      "body": {
+        "content": "Updated content"
+      },
+      "expectedStatus": 400
     }
   ]
 }
