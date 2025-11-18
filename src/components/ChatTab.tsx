@@ -39,7 +39,6 @@ export default function ChatTab({
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -62,34 +61,8 @@ export default function ChatTab({
     }
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage) return null;
-    
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', selectedImage);
-      
-      const response = await fetch('https://api.poehali.dev/upload-image', {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) throw new Error('Upload failed');
-      
-      const data = await response.json();
-      return data.url;
-    } catch (error) {
-      console.error('Image upload error:', error);
-      return null;
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleSend = async () => {
-    const imageUrl = await uploadImage();
-    onSendMessage(replyingTo?.id, imageUrl || undefined);
+    onSendMessage(replyingTo?.id, imagePreview || undefined);
     setReplyingTo(null);
     setSelectedImage(null);
     setImagePreview('');
@@ -234,7 +207,7 @@ export default function ChatTab({
               value={newMessage}
               onChange={(e) => onMessageChange(e.target.value)}
               className="min-h-[80px]"
-              disabled={isLoading || uploadingImage}
+              disabled={isLoading}
             />
             <input
               ref={fileInputRef}
@@ -247,7 +220,7 @@ export default function ChatTab({
           <div className="flex flex-col gap-2">
             <Button
               onClick={() => fileInputRef.current?.click()}
-              disabled={isLoading || uploadingImage}
+              disabled={isLoading}
               variant="outline"
               size="icon"
             >
@@ -255,7 +228,7 @@ export default function ChatTab({
             </Button>
             <Button
               onClick={handleSend}
-              disabled={isLoading || uploadingImage || (!newMessage.trim() && !selectedImage)}
+              disabled={isLoading || (!newMessage.trim() && !selectedImage)}
               className="flex-1"
             >
               <Icon name="Send" size={18} />
