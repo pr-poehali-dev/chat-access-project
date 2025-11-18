@@ -43,7 +43,7 @@ export default function AuthDialogs({
     }
     
     try {
-      const res = await fetch('https://functions.poehali.dev/35c4e5ed-9cca-4d07-85e6-88063f17b0eb', {
+      const res = await fetch('https://functions.poehali.dev/abd02ab1-6477-487f-8745-ebed9c3cb6ad', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: adminPassword })

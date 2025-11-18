@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Admin login with correct password",
+      "method": "POST",
+      "body": {
+        "password": "ValentinaGolosova2024"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "token": "string",
+        "is_admin": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Admin login with wrong password",
+      "method": "POST",
+      "body": {
+        "password": "wrongpassword"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -44,7 +44,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Token required'})
                 }
             
-            if user_token != 'admin_forever_access_2024':
+            if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
                         "SELECT expires_at FROM subscriptions WHERE user_token = %s",
@@ -64,7 +64,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 
-                is_admin = user_token == 'admin_forever_access_2024'
+                is_admin = user_token in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']
                 
                 if is_admin:
                     cur.execute(
@@ -123,7 +123,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({'error': 'Content required'})
                 }
             
-            if user_token != 'admin_forever_access_2024':
+            if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
                         "SELECT expires_at, is_blocked FROM subscriptions WHERE user_token = %s",
