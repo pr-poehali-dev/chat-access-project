@@ -1,16 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import AboutTab from '@/components/AboutTab';
@@ -19,6 +8,9 @@ import SubscriptionTab from '@/components/SubscriptionTab';
 import RulesTab from '@/components/RulesTab';
 import SupportTab from '@/components/SupportTab';
 import AdminPanel from '@/components/AdminPanel';
+import AppHeader from '@/components/AppHeader';
+import AuthDialogs from '@/components/AuthDialogs';
+import InstallDialog from '@/components/InstallDialog';
 
 interface Message {
   id: number;
@@ -44,8 +36,6 @@ export default function Index() {
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [showTokenDialog, setShowTokenDialog] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [userToken, setUserToken] = useState('');
   const { toast } = useToast();
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
@@ -197,8 +187,6 @@ export default function Index() {
     }
   };
 
-
-
   const sendMessage = async (replyTo?: number) => {
     if (!newMessage.trim() || !token) return;
     setIsLoading(true);
@@ -237,88 +225,38 @@ export default function Index() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('isAdmin');
+    setToken(null);
+    setIsAdmin(false);
+    setActiveTab('about');
+    toast({
+      title: 'Выход выполнен',
+      description: 'Вы вышли из аккаунта'
+    });
+  };
+
+  const handleAdminLogin = (adminToken: string) => {
+    setToken(adminToken);
+    setIsAdmin(true);
+  };
+
+  const handleTokenLogin = (userToken: string) => {
+    setToken(userToken);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Icon name="MessageSquare" size={24} className="text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-foreground">Банкротство физ. лиц</h1>
-              <p className="text-xs text-muted-foreground">Закрытое сообщество курса Валентины Голосовой</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {!token && (
-              <>
-                <Button 
-                  onClick={() => setShowTokenDialog(true)}
-                  variant="default"
-                  className="gap-2"
-                  size="sm"
-                >
-                  <Icon name="Key" size={16} />
-                  Войти с токеном
-                </Button>
-                <Button 
-                  onClick={() => setShowAdminDialog(true)}
-                  variant="outline"
-                  className="gap-2"
-                  size="sm"
-                >
-                  <Icon name="Shield" size={16} />
-                  Админ
-                </Button>
-              </>
-            )}
-            {token && (
-              <>
-                {isAdmin && (
-                  <Badge variant="default" className="gap-2">
-                    <Icon name="Shield" size={14} />
-                    Администратор
-                  </Badge>
-                )}
-                <Button 
-                  onClick={() => {
-                    localStorage.removeItem('userToken');
-                    localStorage.removeItem('isAdmin');
-                    setToken(null);
-                    setIsAdmin(false);
-                    setActiveTab('about');
-                    toast({
-                      title: 'Выход выполнен',
-                      description: 'Вы вышли из аккаунта'
-                    });
-                  }}
-                  variant="outline"
-                  className="gap-2"
-                  size="sm"
-                >
-                  <Icon name="LogOut" size={16} />
-                  Выйти
-                </Button>
-              </>
-            )}
-            <Button 
-              onClick={() => setShowInstallDialog(true)}
-              className="gap-2"
-              size="sm"
-            >
-              <Icon name="Smartphone" size={16} />
-              Скачать приложение
-            </Button>
-            {subscription?.is_active && !isAdmin && (
-              <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
-                <Icon name="CheckCircle" size={14} />
-                Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
-              </Badge>
-            )}
-          </div>
-        </div>
-      </header>
+      <AppHeader
+        token={token}
+        isAdmin={isAdmin}
+        subscription={subscription}
+        onTokenDialogOpen={() => setShowTokenDialog(true)}
+        onAdminDialogOpen={() => setShowAdminDialog(true)}
+        onInstallDialogOpen={() => setShowInstallDialog(true)}
+        onLogout={handleLogout}
+      />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -390,220 +328,19 @@ export default function Index() {
         </Tabs>
       </div>
 
-      <Dialog open={showInstallDialog} onOpenChange={setShowInstallDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Icon name="Smartphone" size={24} className="text-primary" />
-              Установите приложение на телефон
-            </DialogTitle>
-            <DialogDescription>
-              Установите приложение для быстрого доступа и работы офлайн
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6 mt-4">
-            <div className="space-y-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Icon name="Apple" size={20} className="text-foreground" />
-                Для iPhone (iOS):
-              </h4>
-              <ol className="space-y-2 list-decimal list-inside text-sm text-muted-foreground pl-2">
-                <li>Откройте этот сайт в браузере <strong className="text-foreground">Safari</strong></li>
-                <li>Нажмите кнопку <strong className="text-foreground">"Поделиться"</strong> <Icon name="Share" size={14} className="inline" /> (внизу экрана)</li>
-                <li>Прокрутите вниз и выберите <strong className="text-foreground">"На экран «Домой»"</strong></li>
-                <li>Нажмите <strong className="text-foreground">"Добавить"</strong> — готово! 🎉</li>
-              </ol>
-            </div>
+      <InstallDialog
+        open={showInstallDialog}
+        onOpenChange={setShowInstallDialog}
+      />
 
-            <div className="space-y-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Icon name="Smartphone" size={20} className="text-foreground" />
-                Для Android:
-              </h4>
-              <ol className="space-y-2 list-decimal list-inside text-sm text-muted-foreground pl-2">
-                <li>Откройте этот сайт в <strong className="text-foreground">Chrome</strong></li>
-                <li>Нажмите меню <strong className="text-foreground">⋮</strong> (три точки в правом верхнем углу)</li>
-                <li>Выберите <strong className="text-foreground">"Установить приложение"</strong> или <strong className="text-foreground">"Добавить на главный экран"</strong></li>
-                <li>Подтвердите установку — готово! 🎉</li>
-              </ol>
-            </div>
-
-            <Card className="p-4 bg-primary/10 border-primary/20">
-              <div className="flex items-start gap-3">
-                <Icon name="Zap" size={20} className="text-primary shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-semibold mb-2">Преимущества установки:</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>✓ Быстрый доступ с главного экрана</li>
-                    <li>✓ Работает без интернета</li>
-                    <li>✓ Push-уведомления о новых сообщениях</li>
-                    <li>✓ Полноэкранный режим без браузерных элементов</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="ShieldCheck" size={24} className="text-primary" />
-              Админ-доступ
-            </DialogTitle>
-            <DialogDescription>
-              Введите пароль администратора для доступа к чату
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            <div>
-              <Input
-                type="password"
-                placeholder="Введите пароль"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    if (adminPassword === 'ValentinaGolosova2024') {
-                      localStorage.setItem('userToken', 'admin_forever_access_2024');
-                      localStorage.setItem('isAdmin', 'true');
-                      setToken('admin_forever_access_2024');
-                      setIsAdmin(true);
-                      setShowAdminDialog(false);
-                      setAdminPassword('');
-                      toast({
-                        title: 'Доступ активирован! 🔑',
-                        description: 'Добро пожаловать, администратор',
-                      });
-                    } else {
-                      toast({
-                        title: 'Неверный пароль',
-                        description: 'Попробуйте еще раз',
-                        variant: 'destructive',
-                      });
-                    }
-                  }
-                }}
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  if (adminPassword === 'ValentinaGolosova2024') {
-                    localStorage.setItem('userToken', 'admin_forever_access_2024');
-                    localStorage.setItem('isAdmin', 'true');
-                    setToken('admin_forever_access_2024');
-                    setIsAdmin(true);
-                    setShowAdminDialog(false);
-                    setAdminPassword('');
-                    toast({
-                      title: 'Доступ активирован! 🔑',
-                      description: 'Добро пожаловать, администратор',
-                    });
-                  } else {
-                    toast({
-                      title: 'Неверный пароль',
-                      description: 'Попробуйте еще раз',
-                      variant: 'destructive',
-                    });
-                  }
-                }}
-              >
-                Войти
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowAdminDialog(false);
-                  setAdminPassword('');
-                }}
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="Key" size={24} className="text-primary" />
-              Вход по токену
-            </DialogTitle>
-            <DialogDescription>
-              Введите токен доступа, который вы получили на email после оплаты
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            <div>
-              <Input
-                type="text"
-                placeholder="Вставьте ваш токен"
-                value={userToken}
-                onChange={(e) => setUserToken(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && userToken.trim()) {
-                    localStorage.setItem('userToken', userToken.trim());
-                    setToken(userToken.trim());
-                    setShowTokenDialog(false);
-                    setUserToken('');
-                    loadSubscription();
-                    toast({
-                      title: 'Токен сохранен! 🔑',
-                      description: 'Проверяем доступ...',
-                    });
-                  }
-                }}
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  if (userToken.trim()) {
-                    localStorage.setItem('userToken', userToken.trim());
-                    setToken(userToken.trim());
-                    setShowTokenDialog(false);
-                    setUserToken('');
-                    loadSubscription();
-                    toast({
-                      title: 'Токен сохранен! 🔑',
-                      description: 'Проверяем доступ...',
-                    });
-                  } else {
-                    toast({
-                      title: 'Ошибка',
-                      description: 'Введите токен',
-                      variant: 'destructive',
-                    });
-                  }
-                }}
-              >
-                Войти
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowTokenDialog(false);
-                  setUserToken('');
-                }}
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AuthDialogs
+        showAdminDialog={showAdminDialog}
+        showTokenDialog={showTokenDialog}
+        onAdminDialogChange={setShowAdminDialog}
+        onTokenDialogChange={setShowTokenDialog}
+        onAdminLogin={handleAdminLogin}
+        onTokenLogin={handleTokenLogin}
+      />
     </div>
   );
 }
