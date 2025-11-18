@@ -106,60 +106,62 @@ export default function ChatTab({
               Сообщений пока нет. Начните общение!
             </p>
           ) : (
-            messages.slice().reverse().map(msg => {
-              const parentMsg = msg.reply_to ? messages.find(m => m.id === msg.reply_to) : null;
-              const hasReplies = messages.some(m => m.reply_to === msg.id);
-              const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
-              
-              return (
-                <div key={msg.id} className={`p-3 rounded-lg border transition-colors ${
-                  hasReplies || isReply
-                    ? 'bg-card border-border' 
-                    : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
-                }`}>
-                  {parentMsg && (
-                    <div className="mb-2 p-2 bg-muted/50 rounded border-l-2 border-primary">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Icon name="CornerDownRight" size={14} className="text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">Ответ на:</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{parentMsg.content}</p>
-                    </div>
-                  )}
-                  {isAdmin && msg.email && (
-                    <div className="mb-2 flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
-                        <Icon name="User" size={12} className="mr-1" />
-                        {msg.email || msg.user_token?.substring(0, 8)}
-                      </Badge>
-                    </div>
-                  )}
-                  {msg.image_url && (
-                    <img 
-                      src={msg.image_url} 
-                      alt="Attached" 
-                      className="max-w-full max-h-64 rounded-lg mb-2 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => setFullscreenImage(msg.image_url!)}
-                    />
-                  )}
-                  {msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(msg.created_at).toLocaleString('ru-RU')}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-6 px-2 gap-1"
-                      onClick={() => setReplyingTo(msg)}
+            (() => {
+              const topLevelMessages = messages.filter(m => !m.reply_to);
+              const renderMessage = (msg: Message, depth: number = 0) => {
+                const replies = messages.filter(m => m.reply_to === msg.id);
+                const hasReplies = replies.length > 0;
+                const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
+                
+                return (
+                  <div key={msg.id} className="space-y-2">
+                    <div 
+                      className={`p-3 rounded-lg border transition-colors ${
+                        hasReplies || isReply
+                          ? 'bg-card border-border' 
+                          : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+                      }`}
+                      style={{ marginLeft: `${depth * 24}px` }}
                     >
-                      <Icon name="Reply" size={14} />
-                      <span className="text-xs">Ответить</span>
-                    </Button>
+                      {isAdmin && msg.email && (
+                        <div className="mb-2 flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">
+                            <Icon name="User" size={12} className="mr-1" />
+                            {msg.email || msg.user_token?.substring(0, 8)}
+                          </Badge>
+                        </div>
+                      )}
+                      {msg.image_url && (
+                        <img 
+                          src={msg.image_url} 
+                          alt="Attached" 
+                          className="max-w-full max-h-64 rounded-lg mb-2 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setFullscreenImage(msg.image_url!)}
+                        />
+                      )}
+                      {msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(msg.created_at).toLocaleString('ru-RU')}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 px-2 gap-1"
+                          onClick={() => setReplyingTo(msg)}
+                        >
+                          <Icon name="Reply" size={14} />
+                          <span className="text-xs">Ответить</span>
+                        </Button>
+                      </div>
+                    </div>
+                    {replies.map(reply => renderMessage(reply, depth + 1))}
                   </div>
-                </div>
-              );
-            })
+                );
+              };
+              
+              return topLevelMessages.slice().reverse().map(msg => renderMessage(msg, 0));
+            })()
           )}
           <div ref={messagesEndRef} />
         </div>
