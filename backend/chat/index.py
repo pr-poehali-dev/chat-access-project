@@ -135,10 +135,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    "DELETE FROM t_p8566807_chat_access_project.messages WHERE id = %s",
-                    (message_id,)
-                )
+                def delete_message_with_replies(msg_id):
+                    cur.execute(
+                        "SELECT id FROM t_p8566807_chat_access_project.messages WHERE reply_to = %s",
+                        (msg_id,)
+                    )
+                    replies = cur.fetchall()
+                    
+                    for reply in replies:
+                        delete_message_with_replies(reply['id'])
+                    
+                    cur.execute(
+                        "DELETE FROM t_p8566807_chat_access_project.messages WHERE id = %s",
+                        (msg_id,)
+                    )
+                
+                delete_message_with_replies(message_id)
                 conn.commit()
                 
                 return {

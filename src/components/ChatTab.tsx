@@ -169,7 +169,11 @@ export default function ChatTab({
                               variant="ghost"
                               className="h-6 px-2 gap-1 text-destructive hover:text-destructive"
                               onClick={() => {
-                                if (confirm('Удалить это сообщение?')) {
+                                const replyCount = replies.length;
+                                const confirmMsg = replyCount > 0 
+                                  ? `Удалить это сообщение и все ${replyCount} ответов под ним?`
+                                  : 'Удалить это сообщение?';
+                                if (confirm(confirmMsg)) {
                                   onDeleteMessage(msg.id);
                                 }
                               }}
