@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 interface Reaction {
@@ -73,6 +74,7 @@ export default function ChatTab({
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [editContent, setEditContent] = useState('');
   const [showReactionPicker, setShowReactionPicker] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -145,6 +147,24 @@ export default function ChatTab({
     const diffMinutes = (now.getTime() - createdAt.getTime()) / 1000 / 60;
     return diffMinutes <= 5;
   };
+
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+    return parts.map((part, i) => 
+      regex.test(part) ? 
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-900/50 px-1 rounded">{part}</mark> : 
+        part
+    );
+  };
+
+  const filteredMessages = searchQuery.trim() 
+    ? messages.filter(msg => 
+        msg.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        msg.author_name?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : messages;
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -172,6 +192,31 @@ export default function ChatTab({
           )}
         </div>
 
+        <div className="relative mb-4">
+          <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Поиск сообщений..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <Icon name="X" size={18} />
+            </button>
+          )}
+        </div>
+
+        {searchQuery && (
+          <div className="text-sm text-muted-foreground mb-2">
+            Найдено сообщений: {filteredMessages.length}
+          </div>
+        )}
+
         <div className="space-y-3 max-h-[400px] overflow-y-auto p-4 bg-muted/30 rounded-lg">
           {messages.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
@@ -179,9 +224,10 @@ export default function ChatTab({
             </p>
           ) : (
             (() => {
-              const topLevelMessages = messages.filter(m => !m.reply_to);
+              const displayMessages = searchQuery.trim() ? filteredMessages : messages;
+              const topLevelMessages = displayMessages.filter(m => !m.reply_to);
               const renderMessage = (msg: Message, depth: number = 0) => {
-                const replies = messages.filter(m => m.reply_to === msg.id);
+                const replies = displayMessages.filter(m => m.reply_to === msg.id);
                 const hasReplies = replies.length > 0;
                 const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
                 
@@ -271,7 +317,7 @@ export default function ChatTab({
                           </div>
                         </div>
                       ) : (
-                        msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>
+                        msg.content && <p className="text-sm text-foreground mb-2">{highlightText(msg.content, searchQuery)}</p>
                       )}
                       {msg.reactions && msg.reactions.length > 0 && (
                         <div className="flex items-center gap-1.5 flex-wrap mb-2">
