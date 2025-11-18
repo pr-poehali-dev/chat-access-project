@@ -42,6 +42,7 @@ export default function Index() {
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const { toast } = useToast();
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
@@ -86,6 +87,14 @@ export default function Index() {
       }
     }
   }, [token, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'chat' && messages.length > 0) {
+      const latestId = messages[0].id;
+      localStorage.setItem('lastReadMessageId', latestId.toString());
+      setUnreadCount(0);
+    }
+  }, [activeTab, messages]);
 
   useEffect(() => {
     if (activeTab === 'chat' && token && subscription?.is_active) {
@@ -159,6 +168,8 @@ export default function Index() {
     if (!token) return;
     if (!silent) setIsLoading(true);
     const prevLatestId = messages.length > 0 ? messages[0].id : null;
+    const lastReadId = parseInt(localStorage.getItem('lastReadMessageId') || '0');
+    
     try {
       const res = await fetch(CHAT_API, {
         headers: { 'X-User-Token': token }
@@ -170,6 +181,9 @@ export default function Index() {
         if (silent && prevLatestId !== null && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
           showNotification(newMessages[0].content);
         }
+        
+        const unread = newMessages.filter((msg: Message) => msg.id > lastReadId).length;
+        setUnreadCount(activeTab === 'chat' ? 0 : unread);
         
         setMessages(newMessages);
         
@@ -373,9 +387,14 @@ export default function Index() {
               <Icon name="Info" size={18} />
               <span className="text-xs">О курсе</span>
             </TabsTrigger>
-            <TabsTrigger value="chat" disabled={!token || (!subscription?.is_active && !isAdmin)} className="flex-col gap-1 py-2 px-1">
+            <TabsTrigger value="chat" disabled={!token || (!subscription?.is_active && !isAdmin)} className="flex-col gap-1 py-2 px-1 relative">
               <Icon name="MessageSquare" size={18} />
               <span className="text-xs">Чат</span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="subscription" className="flex-col gap-1 py-2 px-1">
               <Icon name="CreditCard" size={18} />
