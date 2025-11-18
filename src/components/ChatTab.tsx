@@ -9,6 +9,7 @@ interface Message {
   id: number;
   content: string;
   image_url?: string | null;
+  image_urls?: string[];
   author_name?: string | null;
   created_at: string;
   reply_to?: number | null;
@@ -26,7 +27,7 @@ interface ChatTabProps {
   isAdmin?: boolean;
   currentUserToken?: string | null;
   onMessageChange: (value: string) => void;
-  onSendMessage: (replyTo?: number, imageUrl?: string) => void;
+  onSendMessage: (replyTo?: number, imageUrls?: string[]) => void;
   onRequestNotifications?: () => void;
   onDeleteMessage?: (messageId: number) => void;
   onTogglePinMessage?: (messageId: number, isPinned: boolean) => void;
@@ -48,8 +49,8 @@ export default function ChatTab({
   onEditMessage
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -65,25 +66,37 @@ export default function ChatTab({
   }, [messages]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length > 0) {
+      setSelectedImages(prev => [...prev, ...imageFiles]);
+      
+      imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImagePreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
   const handleSend = async () => {
-    onSendMessage(replyingTo?.id, imagePreview || undefined);
+    onSendMessage(replyingTo?.id, imagePreviews.length > 0 ? imagePreviews : undefined);
     setReplyingTo(null);
-    setSelectedImage(null);
-    setImagePreview('');
+    setSelectedImages([]);
+    setImagePreviews([]);
   };
 
-  const clearImage = () => {
-    setSelectedImage(null);
-    setImagePreview('');
+  const clearImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearAllImages = () => {
+    setSelectedImages([]);
+    setImagePreviews([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -204,13 +217,18 @@ export default function ChatTab({
                           </Badge>
                         )}
                       </div>
-                      {msg.image_url && (
-                        <img 
-                          src={msg.image_url} 
-                          alt="Attached" 
-                          className="max-w-full max-h-64 rounded-lg mb-2 object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => setFullscreenImage(msg.image_url!)}
-                        />
+                      {(msg.image_urls && msg.image_urls.length > 0) && (
+                        <div className={`mb-2 gap-2 ${msg.image_urls.length === 1 ? 'flex' : 'grid grid-cols-2'}`}>
+                          {msg.image_urls.map((url, idx) => (
+                            <img 
+                              key={idx}
+                              src={url} 
+                              alt={`Attached ${idx + 1}`}
+                              className="max-w-full max-h-64 rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => setFullscreenImage(url)}
+                            />
+                          ))}
+                        </div>
                       )}
                       {editingMessage?.id === msg.id ? (
                         <div className="space-y-2 mb-2">
@@ -303,22 +321,38 @@ export default function ChatTab({
           <div ref={messagesEndRef} />
         </div>
 
-        {imagePreview && (
+        {imagePreviews.length > 0 && (
           <Card className="p-3 bg-secondary/10 border-secondary/30">
-            <div className="flex items-start gap-3">
-              <img 
-                src={imagePreview} 
-                alt="Preview" 
-                className="w-20 h-20 rounded object-cover"
-              />
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium">Изображения ({imagePreviews.length})</span>
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={clearImage}
-                className="ml-auto"
+                onClick={clearAllImages}
+                className="h-6 px-2 gap-1"
               >
-                <Icon name="X" size={14} />
+                <Icon name="X" size={12} />
+                <span className="text-xs">Очистить все</span>
               </Button>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {imagePreviews.map((preview, idx) => (
+                <div key={idx} className="relative group">
+                  <img 
+                    src={preview} 
+                    alt={`Preview ${idx + 1}`}
+                    className="w-full h-20 rounded object-cover"
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => clearImage(idx)}
+                    className="absolute top-1 right-1 h-6 w-6 p-0 bg-destructive/80 hover:bg-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon name="X" size={12} className="text-white" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </Card>
         )}
@@ -358,6 +392,7 @@ export default function ChatTab({
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               onChange={handleImageSelect}
               className="hidden"
             />
@@ -373,7 +408,7 @@ export default function ChatTab({
             </Button>
             <Button
               onClick={handleSend}
-              disabled={isLoading || (!newMessage.trim() && !selectedImage)}
+              disabled={isLoading || (!newMessage.trim() && selectedImages.length === 0)}
               className="flex-1"
             >
               <Icon name="Send" size={18} />

@@ -16,6 +16,7 @@ interface Message {
   id: number;
   content: string;
   image_url?: string | null;
+  image_urls?: string[];
   author_name?: string | null;
   created_at: string;
   reply_to?: number | null;
@@ -215,8 +216,8 @@ export default function Index() {
     }
   };
 
-  const sendMessage = async (replyTo?: number, imageUrl?: string) => {
-    if ((!newMessage.trim() && !imageUrl) || !token) return;
+  const sendMessage = async (replyTo?: number, imageUrls?: string[]) => {
+    if ((!newMessage.trim() && (!imageUrls || imageUrls.length === 0)) || !token) return;
     setIsLoading(true);
     try {
       const res = await fetch(CHAT_API, {
@@ -227,7 +228,7 @@ export default function Index() {
         },
         body: JSON.stringify({ 
           content: newMessage,
-          image_url: imageUrl || null,
+          image_urls: imageUrls || [],
           author_name: authorName || null,
           reply_to: replyTo || null
         })
