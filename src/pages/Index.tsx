@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
@@ -52,6 +52,11 @@ export default function Index() {
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { toast } = useToast();
+  const notificationSound = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
+  }, []);
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
 
@@ -162,6 +167,10 @@ export default function Index() {
   };
 
   const showNotification = (message: string) => {
+    if (notificationSound.current) {
+      notificationSound.current.play().catch(() => {});
+    }
+    
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('Новое сообщение в чате', {
         body: message.substring(0, 100),
