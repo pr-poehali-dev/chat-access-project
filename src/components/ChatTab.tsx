@@ -265,20 +265,22 @@ export default function ChatTab({
                         msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>
                       )}
                       {msg.reactions && msg.reactions.length > 0 && (
-                        <div className="flex items-center gap-1 flex-wrap mb-2">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-2">
                           {msg.reactions.map((reaction, idx) => {
                             const hasReacted = msg.user_reactions?.includes(reaction.emoji);
                             return (
-                              <Button
+                              <button
                                 key={idx}
-                                size="sm"
-                                variant={hasReacted ? "secondary" : "outline"}
-                                className={`h-7 px-2 gap-1 text-sm ${hasReacted ? 'ring-1 ring-secondary' : ''}`}
+                                className={`h-7 px-2.5 rounded-full flex items-center gap-1 text-sm transition-all hover:scale-105 ${
+                                  hasReacted 
+                                    ? 'bg-primary/10 border border-primary/30 shadow-sm' 
+                                    : 'bg-muted/50 border border-border/50 hover:bg-muted'
+                                }`}
                                 onClick={() => onToggleReaction?.(msg.id, reaction.emoji, hasReacted)}
                               >
-                                <span>{reaction.emoji}</span>
-                                <span className="text-xs font-medium">{reaction.count}</span>
-                              </Button>
+                                <span className="text-base">{reaction.emoji}</span>
+                                <span className="text-xs font-medium text-muted-foreground">{reaction.count}</span>
+                              </button>
                             );
                           })}
                         </div>
