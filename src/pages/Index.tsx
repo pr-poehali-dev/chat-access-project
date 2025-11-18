@@ -205,7 +205,7 @@ export default function Index() {
       });
       if (res.ok) {
         setNewMessage('');
-        loadMessages();
+        await loadMessages();
         toast({
           title: 'Сообщение отправлено'
         });

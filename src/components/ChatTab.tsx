@@ -109,10 +109,11 @@ export default function ChatTab({
             messages.slice().reverse().map(msg => {
               const parentMsg = msg.reply_to ? messages.find(m => m.id === msg.reply_to) : null;
               const hasReplies = messages.some(m => m.reply_to === msg.id);
+              const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
               
               return (
                 <div key={msg.id} className={`p-3 rounded-lg border transition-colors ${
-                  hasReplies 
+                  hasReplies || isReply
                     ? 'bg-card border-border' 
                     : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
                 }`}>
