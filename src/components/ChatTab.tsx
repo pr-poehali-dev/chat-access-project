@@ -9,6 +9,7 @@ interface Message {
   id: number;
   content: string;
   image_url?: string | null;
+  author_name?: string | null;
   created_at: string;
   reply_to?: number | null;
   user_token?: string | null;
@@ -123,14 +124,20 @@ export default function ChatTab({
                       }`}
                       style={{ marginLeft: `${depth * 24}px` }}
                     >
-                      {isAdmin && msg.email && (
-                        <div className="mb-2 flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">
+                      <div className="mb-2 flex items-center gap-2">
+                        {msg.author_name && (
+                          <Badge variant="default" className="text-xs">
                             <Icon name="User" size={12} className="mr-1" />
+                            {msg.author_name}
+                          </Badge>
+                        )}
+                        {isAdmin && msg.email && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Icon name="Mail" size={12} className="mr-1" />
                             {msg.email || msg.user_token?.substring(0, 8)}
                           </Badge>
-                        </div>
-                      )}
+                        )}
+                      </div>
                       {msg.image_url && (
                         <img 
                           src={msg.image_url} 

@@ -6,8 +6,10 @@ interface AppHeaderProps {
   token: string | null;
   isAdmin: boolean;
   subscription: any;
+  authorName: string;
   onTokenDialogOpen: () => void;
   onAdminDialogOpen: () => void;
+  onNameDialogOpen: () => void;
   onInstallDialogOpen: () => void;
   onLogout: () => void;
 }
@@ -16,8 +18,10 @@ export default function AppHeader({
   token,
   isAdmin,
   subscription,
+  authorName,
   onTokenDialogOpen,
   onAdminDialogOpen,
+  onNameDialogOpen,
   onInstallDialogOpen,
   onLogout,
 }: AppHeaderProps) {
@@ -58,6 +62,15 @@ export default function AppHeader({
           )}
           {token && (
             <>
+              <Button
+                onClick={onNameDialogOpen}
+                variant="ghost"
+                className="gap-2"
+                size="sm"
+              >
+                <Icon name="User" size={16} />
+                {authorName || 'Указать имя'}
+              </Button>
               {isAdmin && (
                 <Badge variant="default" className="gap-2">
                   <Icon name="Shield" size={14} />

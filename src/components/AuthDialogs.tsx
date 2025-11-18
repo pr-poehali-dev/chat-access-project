@@ -14,22 +14,31 @@ import { useToast } from '@/hooks/use-toast';
 interface AuthDialogsProps {
   showAdminDialog: boolean;
   showTokenDialog: boolean;
+  showNameDialog: boolean;
   onAdminDialogChange: (open: boolean) => void;
   onTokenDialogChange: (open: boolean) => void;
+  onNameDialogChange: (open: boolean) => void;
   onAdminLogin: (password: string) => void;
   onTokenLogin: (token: string) => void;
+  onNameSave: (name: string) => void;
+  authorName: string;
 }
 
 export default function AuthDialogs({
   showAdminDialog,
   showTokenDialog,
+  showNameDialog,
   onAdminDialogChange,
   onTokenDialogChange,
+  onNameDialogChange,
   onAdminLogin,
   onTokenLogin,
+  onNameSave,
+  authorName,
 }: AuthDialogsProps) {
   const [adminPassword, setAdminPassword] = useState('');
   const [userToken, setUserToken] = useState('');
+  const [tempName, setTempName] = useState(authorName);
   const { toast } = useToast();
 
   const handleAdminLogin = async () => {
@@ -95,8 +104,55 @@ export default function AuthDialogs({
     });
   };
 
+  const handleNameSave = () => {
+    const trimmedName = tempName.trim();
+    if (trimmedName.length < 2) {
+      toast({
+        title: 'Ошибка',
+        description: 'Имя должно содержать минимум 2 символа',
+        variant: 'destructive'
+      });
+      return;
+    }
+    localStorage.setItem('authorName', trimmedName);
+    onNameSave(trimmedName);
+    onNameDialogChange(false);
+    toast({
+      title: 'Имя сохранено',
+      description: `Ваши сообщения будут подписаны как "${trimmedName}"`
+    });
+  };
+
   return (
     <>
+      <Dialog open={showNameDialog} onOpenChange={onNameDialogChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="User" size={24} className="text-primary" />
+              Представьтесь участникам чата
+            </DialogTitle>
+            <DialogDescription>
+              Укажите имя или логин, под которым будут публиковаться ваши сообщения
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <Input
+              type="text"
+              placeholder="Ваше имя или логин"
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleNameSave()}
+              maxLength={100}
+            />
+            <Button onClick={handleNameSave} className="w-full gap-2">
+              <Icon name="Check" size={18} />
+              Сохранить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showAdminDialog} onOpenChange={onAdminDialogChange}>
         <DialogContent className="max-w-md">
           <DialogHeader>

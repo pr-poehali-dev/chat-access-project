@@ -15,6 +15,8 @@ import InstallDialog from '@/components/InstallDialog';
 interface Message {
   id: number;
   content: string;
+  image_url?: string | null;
+  author_name?: string | null;
   created_at: string;
   reply_to?: number | null;
   user_token?: string | null;
@@ -30,12 +32,14 @@ export default function Index() {
   const [isAdmin, setIsAdmin] = useState<boolean>(localStorage.getItem('isAdmin') === 'true');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [authorName, setAuthorName] = useState<string>(localStorage.getItem('authorName') || '');
   const [isLoading, setIsLoading] = useState(false);
   const [subscription, setSubscription] = useState<any>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [showInstallDialog, setShowInstallDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [showTokenDialog, setShowTokenDialog] = useState(false);
+  const [showNameDialog, setShowNameDialog] = useState(false);
   const { toast } = useToast();
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
@@ -200,6 +204,7 @@ export default function Index() {
         body: JSON.stringify({ 
           content: newMessage,
           image_url: imageUrl || null,
+          author_name: authorName || null,
           reply_to: replyTo || null
         })
       });
@@ -253,8 +258,10 @@ export default function Index() {
         token={token}
         isAdmin={isAdmin}
         subscription={subscription}
+        authorName={authorName}
         onTokenDialogOpen={() => setShowTokenDialog(true)}
         onAdminDialogOpen={() => setShowAdminDialog(true)}
+        onNameDialogOpen={() => setShowNameDialog(true)}
         onInstallDialogOpen={() => setShowInstallDialog(true)}
         onLogout={handleLogout}
       />
@@ -337,10 +344,14 @@ export default function Index() {
       <AuthDialogs
         showAdminDialog={showAdminDialog}
         showTokenDialog={showTokenDialog}
+        showNameDialog={showNameDialog}
         onAdminDialogChange={setShowAdminDialog}
         onTokenDialogChange={setShowTokenDialog}
+        onNameDialogChange={setShowNameDialog}
         onAdminLogin={handleAdminLogin}
         onTokenLogin={handleTokenLogin}
+        onNameSave={setAuthorName}
+        authorName={authorName}
       />
     </div>
   );
