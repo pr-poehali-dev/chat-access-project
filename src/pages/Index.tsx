@@ -73,6 +73,14 @@ export default function Index() {
       loadSubscription();
       if (activeTab === 'chat') {
         loadMessages();
+        
+        const hasPromptedName = sessionStorage.getItem('hasPromptedNameDialog');
+        if (!authorName && !hasPromptedName) {
+          setTimeout(() => {
+            setShowNameDialog(true);
+            sessionStorage.setItem('hasPromptedNameDialog', 'true');
+          }, 1000);
+        }
       }
     }
   }, [token, activeTab]);
