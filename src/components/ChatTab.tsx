@@ -108,9 +108,14 @@ export default function ChatTab({
           ) : (
             messages.slice().reverse().map(msg => {
               const parentMsg = msg.reply_to ? messages.find(m => m.id === msg.reply_to) : null;
+              const hasReplies = messages.some(m => m.reply_to === msg.id);
               
               return (
-                <div key={msg.id} className="p-3 bg-card rounded-lg border border-border">
+                <div key={msg.id} className={`p-3 rounded-lg border transition-colors ${
+                  hasReplies 
+                    ? 'bg-card border-border' 
+                    : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+                }`}>
                   {parentMsg && (
                     <div className="mb-2 p-2 bg-muted/50 rounded border-l-2 border-primary">
                       <div className="flex items-center gap-2 mb-1">
