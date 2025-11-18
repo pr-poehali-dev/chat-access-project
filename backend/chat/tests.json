@@ -14,6 +14,21 @@
         "content": "Test message"
       },
       "expectedStatus": 401
+    },
+    {
+      "name": "Delete message without token",
+      "method": "DELETE",
+      "path": "/?id=1",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Delete message without admin rights",
+      "method": "DELETE",
+      "path": "/?id=1",
+      "headers": {
+        "X-User-Token": "regular_user_token"
+      },
+      "expectedStatus": 403
     }
   ]
 }

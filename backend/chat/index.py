@@ -19,7 +19,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 200,
             'headers': {
                 'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Token',
                 'Access-Control-Max-Age': '86400'
             },
@@ -98,6 +98,57 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             for msg in messages
                         ]
                     }, ensure_ascii=False)
+                }
+        
+        if method == 'DELETE':
+            if not user_token:
+                return {
+                    'statusCode': 401,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Token required'})
+                }
+            
+            if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
+                return {
+                    'statusCode': 403,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Admin access required'})
+                }
+            
+            query_params = event.get('queryStringParameters', {})
+            message_id = query_params.get('id')
+            
+            if not message_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({'error': 'Message ID required'})
+                }
+            
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute(
+                    "DELETE FROM t_p8566807_chat_access_project.messages WHERE id = %s",
+                    (message_id,)
+                )
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'success': True, 'deleted_id': int(message_id)}, ensure_ascii=False)
                 }
         
         if method == 'POST':

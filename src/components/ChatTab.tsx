@@ -25,6 +25,7 @@ interface ChatTabProps {
   onMessageChange: (value: string) => void;
   onSendMessage: (replyTo?: number, imageUrl?: string) => void;
   onRequestNotifications?: () => void;
+  onDeleteMessage?: (messageId: number) => void;
 }
 
 export default function ChatTab({ 
@@ -35,7 +36,8 @@ export default function ChatTab({
   isAdmin = false,
   onMessageChange, 
   onSendMessage,
-  onRequestNotifications
+  onRequestNotifications,
+  onDeleteMessage
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -151,15 +153,32 @@ export default function ChatTab({
                         <span className="text-xs text-muted-foreground">
                           {new Date(msg.created_at).toLocaleString('ru-RU')}
                         </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-6 px-2 gap-1"
-                          onClick={() => setReplyingTo(msg)}
-                        >
-                          <Icon name="Reply" size={14} />
-                          <span className="text-xs">Ответить</span>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 px-2 gap-1"
+                            onClick={() => setReplyingTo(msg)}
+                          >
+                            <Icon name="Reply" size={14} />
+                            <span className="text-xs">Ответить</span>
+                          </Button>
+                          {isAdmin && onDeleteMessage && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 px-2 gap-1 text-destructive hover:text-destructive"
+                              onClick={() => {
+                                if (confirm('Удалить это сообщение?')) {
+                                  onDeleteMessage(msg.id);
+                                }
+                              }}
+                            >
+                              <Icon name="Trash2" size={14} />
+                              <span className="text-xs">Удалить</span>
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                     {replies.map(reply => renderMessage(reply, depth + 1))}

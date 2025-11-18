@@ -260,6 +260,34 @@ export default function Index() {
     setToken(userToken);
   };
 
+  const deleteMessage = async (messageId: number) => {
+    if (!token || !isAdmin) return;
+    try {
+      const res = await fetch(`${CHAT_API}?id=${messageId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Token': token
+        }
+      });
+      if (res.ok) {
+        await loadMessages();
+        toast({
+          title: 'Сообщение удалено'
+        });
+      } else {
+        toast({
+          title: 'Ошибка удаления',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка удаления',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader
@@ -319,6 +347,7 @@ export default function Index() {
               onMessageChange={setNewMessage}
               onSendMessage={sendMessage}
               onRequestNotifications={requestNotificationPermission}
+              onDeleteMessage={deleteMessage}
             />
           </TabsContent>
 
