@@ -30,6 +30,7 @@ interface Message {
   edited_at?: string | null;
   reactions?: Reaction[];
   user_reactions?: string[];
+  admin_reacted?: boolean;
 }
 
 interface ChatTabProps {
@@ -237,7 +238,7 @@ export default function ChatTab({
                       className={`p-3 rounded-lg border transition-colors ${
                         msg.is_pinned
                           ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
-                          : hasReplies || isReply
+                          : hasReplies || isReply || msg.admin_reacted
                           ? 'bg-card border-border' 
                           : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
                       }`}

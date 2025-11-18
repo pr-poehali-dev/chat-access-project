@@ -103,6 +103,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     user_reactions_by_message[msg_id].append(ur['emoji'])
                 
                 cur.execute(
+                    "SELECT DISTINCT message_id FROM t_p8566807_chat_access_project.reactions WHERE user_token IN ('admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024') AND message_id = ANY(%s)",
+                    ([msg['id'] for msg in messages],)
+                )
+                admin_reacted_messages = {row['message_id'] for row in cur.fetchall()}
+                
+                cur.execute(
                     "DELETE FROM t_p8566807_chat_access_project.typing_indicators WHERE last_typing_at < NOW() - INTERVAL '5 seconds'"
                 )
                 
@@ -135,7 +141,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'user_token': msg.get('user_token') if is_admin else None,
                                 'email': msg.get('email') if is_admin else None,
                                 'reactions': reactions_by_message.get(msg['id'], []),
-                                'user_reactions': user_reactions_by_message.get(msg['id'], [])
+                                'user_reactions': user_reactions_by_message.get(msg['id'], []),
+                                'admin_reacted': msg['id'] in admin_reacted_messages
                             }
                             for msg in messages
                         ]
