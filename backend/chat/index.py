@@ -102,6 +102,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         user_reactions_by_message[msg_id] = []
                     user_reactions_by_message[msg_id].append(ur['emoji'])
                 
+                cur.execute(
+                    "DELETE FROM t_p8566807_chat_access_project.typing_indicators WHERE last_typing_at < NOW() - INTERVAL '5 seconds'"
+                )
+                
+                cur.execute(
+                    "SELECT user_token, author_name FROM t_p8566807_chat_access_project.typing_indicators WHERE user_token != %s",
+                    (user_token,)
+                )
+                typing_users = cur.fetchall()
+                
                 return {
                     'statusCode': 200,
                     'headers': {
@@ -110,6 +120,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     },
                     'isBase64Encoded': False,
                     'body': json.dumps({
+                        'typing_users': [{'user_token': t['user_token'], 'author_name': t['author_name']} for t in typing_users],
                         'messages': [
                             {
                                 'id': msg['id'],
@@ -336,6 +347,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         },
                         'isBase64Encoded': False,
                         'body': json.dumps({'success': True, 'id': updated_msg['id'], 'is_pinned': updated_msg['is_pinned']}, ensure_ascii=False)
+                    }
+                
+                elif action == 'typing':
+                    body_data = json.loads(event.get('body', '{}'))
+                    author_name = body_data.get('author_name', '').strip()[:100]
+                    is_typing = body_data.get('is_typing', False)
+                    
+                    if is_typing:
+                        cur.execute(
+                            "INSERT INTO t_p8566807_chat_access_project.typing_indicators (user_token, author_name, last_typing_at) VALUES (%s, %s, NOW()) ON CONFLICT (user_token) DO UPDATE SET author_name = EXCLUDED.author_name, last_typing_at = NOW()",
+                            (user_token, author_name if author_name else None)
+                        )
+                    else:
+                        cur.execute(
+                            "DELETE FROM t_p8566807_chat_access_project.typing_indicators WHERE user_token = %s",
+                            (user_token,)
+                        )
+                    
+                    conn.commit()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'isBase64Encoded': False,
+                        'body': json.dumps({'success': True}, ensure_ascii=False)
                     }
                 
                 elif action == 'reaction':

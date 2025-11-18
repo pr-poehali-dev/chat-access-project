@@ -17,6 +17,11 @@ interface Reaction {
   count: number;
 }
 
+interface TypingUser {
+  user_token: string;
+  author_name?: string | null;
+}
+
 interface Message {
   id: number;
   content: string;
@@ -51,8 +56,10 @@ export default function Index() {
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
   const { toast } = useToast();
   const notificationSound = useRef<HTMLAudioElement | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     notificationSound.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
@@ -194,6 +201,7 @@ export default function Index() {
       if (res.ok) {
         const data = await res.json();
         const newMessages = data.messages;
+        setTypingUsers(data.typing_users || []);
         
         if (silent && prevLatestId !== null && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
           showNotification(newMessages[0].content);
@@ -402,6 +410,34 @@ export default function Index() {
     }
   };
 
+  const sendTypingIndicator = async (isTyping: boolean) => {
+    if (!token) return;
+    try {
+      await fetch(`${CHAT_API}?action=typing`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Token': token
+        },
+        body: JSON.stringify({ is_typing: isTyping, author_name: authorName })
+      });
+    } catch (error) {
+      console.error('Failed to send typing indicator');
+    }
+  };
+
+  const handleTyping = () => {
+    sendTypingIndicator(true);
+    
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingIndicator(false);
+    }, 3000);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader
@@ -464,6 +500,7 @@ export default function Index() {
               notificationPermission={notificationPermission}
               isAdmin={isAdmin}
               currentUserToken={token}
+              typingUsers={typingUsers}
               onMessageChange={setNewMessage}
               onSendMessage={sendMessage}
               onRequestNotifications={requestNotificationPermission}
@@ -471,6 +508,7 @@ export default function Index() {
               onTogglePinMessage={togglePinMessage}
               onEditMessage={editMessage}
               onToggleReaction={toggleReaction}
+              onTyping={handleTyping}
             />
           </TabsContent>
 

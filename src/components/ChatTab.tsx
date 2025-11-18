@@ -10,6 +10,11 @@ interface Reaction {
   count: number;
 }
 
+interface TypingUser {
+  user_token: string;
+  author_name?: string | null;
+}
+
 interface Message {
   id: number;
   content: string;
@@ -33,6 +38,7 @@ interface ChatTabProps {
   notificationPermission?: NotificationPermission;
   isAdmin?: boolean;
   currentUserToken?: string | null;
+  typingUsers?: TypingUser[];
   onMessageChange: (value: string) => void;
   onSendMessage: (replyTo?: number, imageUrls?: string[]) => void;
   onRequestNotifications?: () => void;
@@ -40,6 +46,7 @@ interface ChatTabProps {
   onTogglePinMessage?: (messageId: number, isPinned: boolean) => void;
   onEditMessage?: (messageId: number, newContent: string) => void;
   onToggleReaction?: (messageId: number, emoji: string, hasReacted: boolean) => void;
+  onTyping?: () => void;
 }
 
 export default function ChatTab({ 
@@ -49,13 +56,15 @@ export default function ChatTab({
   notificationPermission,
   isAdmin = false,
   currentUserToken,
+  typingUsers = [],
   onMessageChange, 
   onSendMessage,
   onRequestNotifications,
   onDeleteMessage,
   onTogglePinMessage,
   onEditMessage,
-  onToggleReaction
+  onToggleReaction,
+  onTyping
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -381,6 +390,18 @@ export default function ChatTab({
               return topLevelMessages.slice().reverse().map(msg => renderMessage(msg, 0));
             })()
           )}
+          {typingUsers.length > 0 && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 animate-pulse">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {typingUsers.map(u => u.author_name || 'Участник').join(', ')} {typingUsers.length === 1 ? 'печатает' : 'печатают'}...
+              </span>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
@@ -447,7 +468,10 @@ export default function ChatTab({
             <Textarea
               placeholder={replyingTo ? "Напишите ответ..." : "Напишите сообщение..."}
               value={newMessage}
-              onChange={(e) => onMessageChange(e.target.value)}
+              onChange={(e) => {
+                onMessageChange(e.target.value);
+                onTyping?.();
+              }}
               className="min-h-[80px]"
               disabled={isLoading}
             />
