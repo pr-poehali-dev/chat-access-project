@@ -12,6 +12,11 @@ import AppHeader from '@/components/AppHeader';
 import AuthDialogs from '@/components/AuthDialogs';
 import InstallDialog from '@/components/InstallDialog';
 
+interface Reaction {
+  emoji: string;
+  count: number;
+}
+
 interface Message {
   id: number;
   content: string;
@@ -24,6 +29,8 @@ interface Message {
   email?: string | null;
   is_pinned?: boolean;
   edited_at?: string | null;
+  reactions?: Reaction[];
+  user_reactions?: string[];
 }
 
 const CHAT_API = 'https://functions.poehali.dev/2143f652-3843-436a-923a-7e36c7c4d228';
@@ -367,6 +374,25 @@ export default function Index() {
     }
   };
 
+  const toggleReaction = async (messageId: number, emoji: string, hasReacted: boolean) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${CHAT_API}?id=${messageId}&action=reaction`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Token': token
+        },
+        body: JSON.stringify({ emoji, remove: hasReacted })
+      });
+      if (res.ok) {
+        await loadMessages();
+      }
+    } catch (error) {
+      console.error('Failed to toggle reaction');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader
@@ -435,6 +461,7 @@ export default function Index() {
               onDeleteMessage={deleteMessage}
               onTogglePinMessage={togglePinMessage}
               onEditMessage={editMessage}
+              onToggleReaction={toggleReaction}
             />
           </TabsContent>
 

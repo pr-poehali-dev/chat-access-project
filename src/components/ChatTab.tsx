@@ -5,6 +5,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 
+interface Reaction {
+  emoji: string;
+  count: number;
+}
+
 interface Message {
   id: number;
   content: string;
@@ -17,6 +22,8 @@ interface Message {
   email?: string | null;
   is_pinned?: boolean;
   edited_at?: string | null;
+  reactions?: Reaction[];
+  user_reactions?: string[];
 }
 
 interface ChatTabProps {
@@ -32,6 +39,7 @@ interface ChatTabProps {
   onDeleteMessage?: (messageId: number) => void;
   onTogglePinMessage?: (messageId: number, isPinned: boolean) => void;
   onEditMessage?: (messageId: number, newContent: string) => void;
+  onToggleReaction?: (messageId: number, emoji: string, hasReacted: boolean) => void;
 }
 
 export default function ChatTab({ 
@@ -46,7 +54,8 @@ export default function ChatTab({
   onRequestNotifications,
   onDeleteMessage,
   onTogglePinMessage,
-  onEditMessage
+  onEditMessage,
+  onToggleReaction
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -54,8 +63,11 @@ export default function ChatTab({
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [editingMessage, setEditingMessage] = useState<Message | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [showReactionPicker, setShowReactionPicker] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const availableEmojis = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🔥', '👏'];
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -252,11 +264,60 @@ export default function ChatTab({
                       ) : (
                         msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>
                       )}
+                      {msg.reactions && msg.reactions.length > 0 && (
+                        <div className="flex items-center gap-1 flex-wrap mb-2">
+                          {msg.reactions.map((reaction, idx) => {
+                            const hasReacted = msg.user_reactions?.includes(reaction.emoji);
+                            return (
+                              <Button
+                                key={idx}
+                                size="sm"
+                                variant={hasReacted ? "secondary" : "outline"}
+                                className={`h-7 px-2 gap-1 text-sm ${hasReacted ? 'ring-1 ring-secondary' : ''}`}
+                                onClick={() => onToggleReaction?.(msg.id, reaction.emoji, hasReacted)}
+                              >
+                                <span>{reaction.emoji}</span>
+                                <span className="text-xs font-medium">{reaction.count}</span>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
                           {new Date(msg.created_at).toLocaleString('ru-RU')}
                         </span>
-                        <div className="flex items-center gap-1 flex-wrap">
+                        <div className="flex items-center gap-1 flex-wrap relative">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 px-2 gap-1"
+                            onClick={() => setShowReactionPicker(showReactionPicker === msg.id ? null : msg.id)}
+                          >
+                            <Icon name="Smile" size={14} />
+                            <span className="text-xs">Реакция</span>
+                          </Button>
+                          {showReactionPicker === msg.id && (
+                            <div className="absolute bottom-full mb-1 left-0 bg-card border rounded-lg shadow-lg p-2 flex gap-1 z-10">
+                              {availableEmojis.map((emoji) => {
+                                const hasReacted = msg.user_reactions?.includes(emoji);
+                                return (
+                                  <Button
+                                    key={emoji}
+                                    size="sm"
+                                    variant={hasReacted ? "secondary" : "ghost"}
+                                    className="h-8 w-8 p-0 text-lg hover:scale-110 transition-transform"
+                                    onClick={() => {
+                                      onToggleReaction?.(msg.id, emoji, hasReacted);
+                                      setShowReactionPicker(null);
+                                    }}
+                                  >
+                                    {emoji}
+                                  </Button>
+                                );
+                              })}
+                            </div>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"

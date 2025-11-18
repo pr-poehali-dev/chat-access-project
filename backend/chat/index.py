@@ -76,6 +76,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     )
                 messages = cur.fetchall()
                 
+                cur.execute(
+                    "SELECT message_id, emoji, COUNT(*) as count FROM t_p8566807_chat_access_project.reactions WHERE message_id = ANY(%s) GROUP BY message_id, emoji",
+                    ([msg['id'] for msg in messages],)
+                )
+                reactions_data = cur.fetchall()
+                
+                reactions_by_message = {}
+                for r in reactions_data:
+                    msg_id = r['message_id']
+                    if msg_id not in reactions_by_message:
+                        reactions_by_message[msg_id] = []
+                    reactions_by_message[msg_id].append({'emoji': r['emoji'], 'count': r['count']})
+                
+                cur.execute(
+                    "SELECT message_id, emoji FROM t_p8566807_chat_access_project.reactions WHERE user_token = %s AND message_id = ANY(%s)",
+                    (user_token, [msg['id'] for msg in messages])
+                )
+                user_reactions_data = cur.fetchall()
+                
+                user_reactions_by_message = {}
+                for ur in user_reactions_data:
+                    msg_id = ur['message_id']
+                    if msg_id not in user_reactions_by_message:
+                        user_reactions_by_message[msg_id] = []
+                    user_reactions_by_message[msg_id].append(ur['emoji'])
+                
                 return {
                     'statusCode': 200,
                     'headers': {
@@ -96,7 +122,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'is_pinned': msg.get('is_pinned', False),
                                 'edited_at': msg['edited_at'].isoformat() if msg.get('edited_at') else None,
                                 'user_token': msg.get('user_token') if is_admin else None,
-                                'email': msg.get('email') if is_admin else None
+                                'email': msg.get('email') if is_admin else None,
+                                'reactions': reactions_by_message.get(msg['id'], []),
+                                'user_reactions': user_reactions_by_message.get(msg['id'], [])
                             }
                             for msg in messages
                         ]
@@ -308,6 +336,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         },
                         'isBase64Encoded': False,
                         'body': json.dumps({'success': True, 'id': updated_msg['id'], 'is_pinned': updated_msg['is_pinned']}, ensure_ascii=False)
+                    }
+                
+                elif action == 'reaction':
+                    body_data = json.loads(event.get('body', '{}'))
+                    emoji = body_data.get('emoji', '').strip()
+                    remove = body_data.get('remove', False)
+                    
+                    if not emoji:
+                        return {
+                            'statusCode': 400,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Emoji required'})
+                        }
+                    
+                    if remove:
+                        cur.execute(
+                            "DELETE FROM t_p8566807_chat_access_project.reactions WHERE message_id = %s AND user_token = %s AND emoji = %s",
+                            (message_id, user_token, emoji)
+                        )
+                    else:
+                        cur.execute(
+                            "INSERT INTO t_p8566807_chat_access_project.reactions (message_id, user_token, emoji) VALUES (%s, %s, %s) ON CONFLICT (message_id, user_token, emoji) DO NOTHING",
+                            (message_id, user_token, emoji)
+                        )
+                    
+                    conn.commit()
+                    
+                    cur.execute(
+                        "SELECT emoji, COUNT(*) as count FROM t_p8566807_chat_access_project.reactions WHERE message_id = %s GROUP BY emoji",
+                        (message_id,)
+                    )
+                    reactions = cur.fetchall()
+                    
+                    return {
+                        'statusCode': 200,
+                        'headers': {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                        'isBase64Encoded': False,
+                        'body': json.dumps({
+                            'success': True,
+                            'reactions': [{'emoji': r['emoji'], 'count': r['count']} for r in reactions]
+                        }, ensure_ascii=False)
                     }
                 
                 elif action == 'edit':
