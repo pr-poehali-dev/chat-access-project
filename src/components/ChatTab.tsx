@@ -40,6 +40,7 @@ export default function ChatTab({
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -158,7 +159,8 @@ export default function ChatTab({
                     <img 
                       src={msg.image_url} 
                       alt="Attached" 
-                      className="max-w-full max-h-64 rounded-lg mb-2 object-cover"
+                      className="max-w-full max-h-64 rounded-lg mb-2 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setFullscreenImage(msg.image_url!)}
                     />
                   )}
                   {msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>}
@@ -265,6 +267,28 @@ export default function ChatTab({
           💡 Чат обновляется автоматически каждые 10 секунд
         </p>
       </div>
+
+      {fullscreenImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setFullscreenImage(null)}
+        >
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute top-4 right-4 text-white hover:bg-white/20"
+            onClick={() => setFullscreenImage(null)}
+          >
+            <Icon name="X" size={24} />
+          </Button>
+          <img 
+            src={fullscreenImage} 
+            alt="Fullscreen" 
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </Card>
   );
 }
