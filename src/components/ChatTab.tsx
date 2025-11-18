@@ -218,7 +218,7 @@ export default function ChatTab({
           </div>
         )}
 
-        <div className="space-y-3 max-h-[400px] overflow-y-auto p-4 bg-muted/30 rounded-lg">
+        <div className="space-y-2 max-h-[600px] overflow-y-auto p-3 bg-muted/30 rounded-lg">
           {messages.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               Сообщений пока нет. Начните общение!
@@ -233,21 +233,21 @@ export default function ChatTab({
                 const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
                 
                 return (
-                  <div key={msg.id} className="space-y-2">
+                  <div key={msg.id} className="space-y-1.5">
                     <div 
-                      className={`p-3 rounded-lg border transition-colors ${
+                      className={`p-2 rounded-lg border transition-colors ${
                         msg.is_pinned
                           ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
                           : hasReplies || isReply || msg.admin_reacted
                           ? 'bg-card border-border' 
                           : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
                       }`}
-                      style={{ marginLeft: `${depth * 24}px` }}
+                      style={{ marginLeft: `${depth * 20}px` }}
                     >
-                      <div className="mb-2 flex items-center gap-2 flex-wrap">
+                      <div className="mb-1.5 flex items-center gap-1.5 flex-wrap">
                         {msg.is_pinned && (
-                          <Badge variant="secondary" className="text-xs bg-secondary text-secondary-foreground">
-                            <Icon name="Pin" size={12} className="mr-1" />
+                          <Badge variant="secondary" className="text-[10px] py-0 px-1.5 h-5 bg-secondary text-secondary-foreground">
+                            <Icon name="Pin" size={10} className="mr-0.5" />
                             Закреплено
                           </Badge>
                         )}
@@ -266,21 +266,21 @@ export default function ChatTab({
                             : userColors[nameHash % userColors.length];
                           
                           return (
-                            <Badge variant="outline" className={`text-xs ${colorClass}`}>
-                              <Icon name={isAdminMessage ? "Crown" : "User"} size={12} className="mr-1" />
+                            <Badge variant="outline" className={`text-[10px] py-0 px-1.5 h-5 ${colorClass}`}>
+                              <Icon name={isAdminMessage ? "Crown" : "User"} size={10} className="mr-0.5" />
                               {msg.author_name}
                             </Badge>
                           );
                         })()}
                         {isAdmin && msg.email && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Icon name="Mail" size={12} className="mr-1" />
+                          <Badge variant="secondary" className="text-[10px] py-0 px-1.5 h-5">
+                            <Icon name="Mail" size={10} className="mr-0.5" />
                             {msg.email || msg.user_token?.substring(0, 8)}
                           </Badge>
                         )}
                         {msg.edited_at && (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
-                            <Icon name="Edit" size={12} className="mr-1" />
+                          <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-5 text-muted-foreground">
+                            <Icon name="Edit" size={10} className="mr-0.5" />
                             изменено
                           </Badge>
                         )}
@@ -318,42 +318,42 @@ export default function ChatTab({
                           </div>
                         </div>
                       ) : (
-                        msg.content && <p className="text-sm text-foreground mb-2">{highlightText(msg.content, searchQuery)}</p>
+                        msg.content && <p className="text-xs leading-relaxed text-foreground mb-1.5">{highlightText(msg.content, searchQuery)}</p>
                       )}
                       {msg.reactions && msg.reactions.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                        <div className="flex items-center gap-1 flex-wrap mb-1.5">
                           {msg.reactions.map((reaction, idx) => {
                             const hasReacted = msg.user_reactions?.includes(reaction.emoji);
                             return (
                               <button
                                 key={idx}
-                                className={`h-7 px-2.5 rounded-full flex items-center gap-1 text-sm transition-all hover:scale-105 ${
+                                className={`h-6 px-2 rounded-full flex items-center gap-1 text-xs transition-all hover:scale-105 ${
                                   hasReacted 
                                     ? 'bg-primary/10 border border-primary/30 shadow-sm' 
                                     : 'bg-muted/50 border border-border/50 hover:bg-muted'
                                 }`}
                                 onClick={() => onToggleReaction?.(msg.id, reaction.emoji, hasReacted)}
                               >
-                                <span className="text-base">{reaction.emoji}</span>
-                                <span className="text-xs font-medium text-muted-foreground">{reaction.count}</span>
+                                <span className="text-sm">{reaction.emoji}</span>
+                                <span className="text-[10px] font-medium text-muted-foreground">{reaction.count}</span>
                               </button>
                             );
                           })}
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-[10px] text-muted-foreground">
                           {new Date(msg.created_at).toLocaleString('ru-RU')}
                         </span>
                         <div className="flex items-center gap-1 flex-wrap relative">
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 px-2 gap-1"
+                            className="h-5 px-1.5 gap-0.5"
                             onClick={() => setShowReactionPicker(showReactionPicker === msg.id ? null : msg.id)}
                           >
-                            <Icon name="Smile" size={14} />
-                            <span className="text-xs">Реакция</span>
+                            <Icon name="Smile" size={12} />
+                            <span className="text-[10px]">Реакция</span>
                           </Button>
                           {showReactionPicker === msg.id && (
                             <div className="absolute bottom-full mb-1 left-0 bg-card border rounded-lg shadow-lg p-2 flex gap-1 z-10">
@@ -379,39 +379,39 @@ export default function ChatTab({
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-6 px-2 gap-1"
+                            className="h-5 px-1.5 gap-0.5"
                             onClick={() => setReplyingTo(msg)}
                           >
-                            <Icon name="Reply" size={14} />
-                            <span className="text-xs">Ответить</span>
+                            <Icon name="Reply" size={12} />
+                            <span className="text-[10px]">Ответить</span>
                           </Button>
                           {canEdit(msg) && onEditMessage && (
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-6 px-2 gap-1"
+                              className="h-5 px-1.5 gap-0.5"
                               onClick={() => startEdit(msg)}
                             >
-                              <Icon name="Edit" size={14} />
-                              <span className="text-xs">Редактировать</span>
+                              <Icon name="Edit" size={12} />
+                              <span className="text-[10px]">Редактировать</span>
                             </Button>
                           )}
                           {isAdmin && onTogglePinMessage && (
                             <Button
                               size="sm"
                               variant="ghost"
-                              className={`h-6 px-2 gap-1 ${msg.is_pinned ? 'text-secondary' : ''}`}
+                              className={`h-5 px-1.5 gap-0.5 ${msg.is_pinned ? 'text-secondary' : ''}`}
                               onClick={() => onTogglePinMessage(msg.id, msg.is_pinned || false)}
                             >
-                              <Icon name={msg.is_pinned ? "PinOff" : "Pin"} size={14} />
-                              <span className="text-xs">{msg.is_pinned ? 'Открепить' : 'Закрепить'}</span>
+                              <Icon name={msg.is_pinned ? "PinOff" : "Pin"} size={12} />
+                              <span className="text-[10px]">{msg.is_pinned ? 'Открепить' : 'Закрепить'}</span>
                             </Button>
                           )}
                           {isAdmin && onDeleteMessage && (
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-6 px-2 gap-1 text-destructive hover:text-destructive"
+                              className="h-5 px-1.5 gap-0.5 text-destructive hover:text-destructive"
                               onClick={() => {
                                 const replyCount = replies.length;
                                 const confirmMsg = replyCount > 0 
@@ -422,8 +422,8 @@ export default function ChatTab({
                                 }
                               }}
                             >
-                              <Icon name="Trash2" size={14} />
-                              <span className="text-xs">Удалить</span>
+                              <Icon name="Trash2" size={12} />
+                              <span className="text-[10px]">Удалить</span>
                             </Button>
                           )}
                         </div>
@@ -438,13 +438,13 @@ export default function ChatTab({
             })()
           )}
           {typingUsers.length > 0 && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 animate-pulse">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30 animate-pulse">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-[10px] text-muted-foreground">
                 {typingUsers.map(u => u.author_name || 'Участник').join(', ')} {typingUsers.length === 1 ? 'печатает' : 'печатают'}...
               </span>
             </div>
