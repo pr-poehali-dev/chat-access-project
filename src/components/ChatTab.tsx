@@ -127,12 +127,27 @@ export default function ChatTab({
                       style={{ marginLeft: `${depth * 24}px` }}
                     >
                       <div className="mb-2 flex items-center gap-2">
-                        {msg.author_name && (
-                          <Badge variant="default" className="text-xs">
-                            <Icon name="User" size={12} className="mr-1" />
-                            {msg.author_name}
-                          </Badge>
-                        )}
+                        {msg.author_name && (() => {
+                          const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
+                          const nameHash = msg.author_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                          const userColors = [
+                            'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
+                            'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700',
+                            'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-700',
+                            'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700',
+                            'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                          ];
+                          const colorClass = isAdminMessage 
+                            ? 'bg-amber-400 dark:bg-amber-500 text-amber-950 dark:text-amber-950 border-amber-500 dark:border-amber-600 font-semibold shadow-sm'
+                            : userColors[nameHash % userColors.length];
+                          
+                          return (
+                            <Badge variant="outline" className={`text-xs ${colorClass}`}>
+                              <Icon name={isAdminMessage ? "Crown" : "User"} size={12} className="mr-1" />
+                              {msg.author_name}
+                            </Badge>
+                          );
+                        })()}
                         {isAdmin && msg.email && (
                           <Badge variant="secondary" className="text-xs">
                             <Icon name="Mail" size={12} className="mr-1" />
