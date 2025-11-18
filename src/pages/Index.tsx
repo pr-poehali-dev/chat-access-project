@@ -187,8 +187,8 @@ export default function Index() {
     }
   };
 
-  const sendMessage = async (replyTo?: number) => {
-    if (!newMessage.trim() || !token) return;
+  const sendMessage = async (replyTo?: number, imageUrl?: string) => {
+    if ((!newMessage.trim() && !imageUrl) || !token) return;
     setIsLoading(true);
     try {
       const res = await fetch(CHAT_API, {
@@ -199,6 +199,7 @@ export default function Index() {
         },
         body: JSON.stringify({ 
           content: newMessage,
+          image_url: imageUrl || null,
           reply_to: replyTo || null
         })
       });

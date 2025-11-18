@@ -68,11 +68,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 if is_admin:
                     cur.execute(
-                        "SELECT m.id, m.content, m.reply_to, m.created_at, m.user_token, s.email FROM t_p8566807_chat_access_project.messages m LEFT JOIN t_p8566807_chat_access_project.subscriptions s ON m.user_token = s.user_token WHERE m.created_at >= NOW() - INTERVAL '24 hours' ORDER BY m.created_at DESC"
+                        "SELECT m.id, m.content, m.image_url, m.reply_to, m.created_at, m.user_token, s.email FROM t_p8566807_chat_access_project.messages m LEFT JOIN t_p8566807_chat_access_project.subscriptions s ON m.user_token = s.user_token WHERE m.created_at >= NOW() - INTERVAL '24 hours' ORDER BY m.created_at DESC"
                     )
                 else:
                     cur.execute(
-                        "SELECT id, content, reply_to, created_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY created_at DESC"
+                        "SELECT id, content, image_url, reply_to, created_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY created_at DESC"
                     )
                 messages = cur.fetchall()
                 
@@ -88,6 +88,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             {
                                 'id': msg['id'],
                                 'content': msg['content'],
+                                'image_url': msg.get('image_url'),
                                 'reply_to': msg['reply_to'],
                                 'created_at': msg['created_at'].isoformat(),
                                 'user_token': msg.get('user_token') if is_admin else None,
@@ -111,9 +112,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             body_data = json.loads(event.get('body', '{}'))
             content = body_data.get('content', '').strip()
+            image_url = body_data.get('image_url')
             reply_to = body_data.get('reply_to')
             
-            if not content:
+            if not content and not image_url:
                 return {
                     'statusCode': 400,
                     'headers': {
@@ -154,8 +156,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 
                 cur.execute(
-                    "INSERT INTO t_p8566807_chat_access_project.messages (content, reply_to, user_token) VALUES (%s, %s, %s) RETURNING id, content, reply_to, created_at",
-                    (content, reply_to, user_token)
+                    "INSERT INTO t_p8566807_chat_access_project.messages (content, image_url, reply_to, user_token) VALUES (%s, %s, %s, %s) RETURNING id, content, image_url, reply_to, created_at",
+                    (content, image_url, reply_to, user_token)
                 )
                 new_msg = cur.fetchone()
                 conn.commit()
@@ -170,6 +172,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({
                         'id': new_msg['id'],
                         'content': new_msg['content'],
+                        'image_url': new_msg.get('image_url'),
                         'reply_to': new_msg['reply_to'],
                         'created_at': new_msg['created_at'].isoformat()
                     }, ensure_ascii=False)

@@ -8,6 +8,7 @@ import Icon from '@/components/ui/icon';
 interface Message {
   id: number;
   content: string;
+  image_url?: string | null;
   created_at: string;
   reply_to?: number | null;
   user_token?: string | null;
@@ -21,7 +22,7 @@ interface ChatTabProps {
   notificationPermission?: NotificationPermission;
   isAdmin?: boolean;
   onMessageChange: (value: string) => void;
-  onSendMessage: (replyTo?: number) => void;
+  onSendMessage: (replyTo?: number, imageUrl?: string) => void;
   onRequestNotifications?: () => void;
 }
 
@@ -36,7 +37,11 @@ export default function ChatTab({
   onRequestNotifications
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,6 +50,55 @@ export default function ChatTab({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage) return null;
+    
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedImage);
+      
+      const response = await fetch('https://api.poehali.dev/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('Upload failed');
+      
+      const data = await response.json();
+      return data.url;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSend = async () => {
+    const imageUrl = await uploadImage();
+    onSendMessage(replyingTo?.id, imageUrl || undefined);
+    setReplyingTo(null);
+    setSelectedImage(null);
+    setImagePreview('');
+  };
+
+  const clearImage = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -100,7 +154,14 @@ export default function ChatTab({
                       </Badge>
                     </div>
                   )}
-                  <p className="text-sm text-foreground mb-2">{msg.content}</p>
+                  {msg.image_url && (
+                    <img 
+                      src={msg.image_url} 
+                      alt="Attached" 
+                      className="max-w-full max-h-64 rounded-lg mb-2 object-cover"
+                    />
+                  )}
+                  {msg.content && <p className="text-sm text-foreground mb-2">{msg.content}</p>}
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">
                       {new Date(msg.created_at).toLocaleString('ru-RU')}
@@ -121,6 +182,26 @@ export default function ChatTab({
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {imagePreview && (
+          <Card className="p-3 bg-secondary/10 border-secondary/30">
+            <div className="flex items-start gap-3">
+              <img 
+                src={imagePreview} 
+                alt="Preview" 
+                className="w-20 h-20 rounded object-cover"
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearImage}
+                className="ml-auto"
+              >
+                <Icon name="X" size={14} />
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {replyingTo && (
           <Card className="p-3 bg-primary/10 border-primary/30">
@@ -145,23 +226,39 @@ export default function ChatTab({
         )}
 
         <div className="flex gap-2">
-          <Textarea
-            placeholder={replyingTo ? "Напишите ответ..." : "Напишите сообщение..."}
-            value={newMessage}
-            onChange={(e) => onMessageChange(e.target.value)}
-            className="min-h-[80px]"
-            disabled={isLoading}
-          />
-          <Button
-            onClick={() => {
-              onSendMessage(replyingTo?.id);
-              setReplyingTo(null);
-            }}
-            disabled={isLoading || !newMessage.trim()}
-            className="self-end"
-          >
-            <Icon name="Send" size={18} />
-          </Button>
+          <div className="flex-1 space-y-2">
+            <Textarea
+              placeholder={replyingTo ? "Напишите ответ..." : "Напишите сообщение..."}
+              value={newMessage}
+              onChange={(e) => onMessageChange(e.target.value)}
+              className="min-h-[80px]"
+              disabled={isLoading || uploadingImage}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || uploadingImage}
+              variant="outline"
+              size="icon"
+            >
+              <Icon name="ImagePlus" size={18} />
+            </Button>
+            <Button
+              onClick={handleSend}
+              disabled={isLoading || uploadingImage || (!newMessage.trim() && !selectedImage)}
+              className="flex-1"
+            >
+              <Icon name="Send" size={18} />
+            </Button>
+          </div>
         </div>
 
         <p className="text-xs text-muted-foreground">
