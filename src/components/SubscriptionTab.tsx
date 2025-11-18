@@ -117,7 +117,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
           <div className="text-center">
             <Badge className="mb-4">Пробный период</Badge>
             <div className="mb-4">
-              <span className="text-4xl font-bold">999₽</span>
+              <span className="text-4xl font-bold">1499₽</span>
               <span className="text-muted-foreground">/неделя</span>
             </div>
             <ul className="space-y-3 mb-6 text-left">
@@ -139,7 +139,7 @@ export default function SubscriptionTab({ subscription }: SubscriptionTabProps) 
               onClick={() => handlePaymentClick('week')}
               disabled={subscription?.is_active || isLoading}
             >
-              {isLoading ? 'Загрузка...' : 'Оплатить 999₽'}
+              {isLoading ? 'Загрузка...' : 'Оплатить 1499₽'}
             </Button>
           </div>
         </Card>
