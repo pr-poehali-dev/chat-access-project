@@ -127,8 +127,7 @@ export function useChat(
         }
       }
     } catch (error) {
-      if (!silent) {
-        console.error('Error loading messages:', error);
+      if (!silent && !isAdmin) {
         toast({
           title: 'Ошибка',
           description: 'Не удалось загрузить сообщения',

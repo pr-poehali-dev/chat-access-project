@@ -12,30 +12,23 @@ export function useAppAuth() {
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const { toast } = useToast();
-  
-  console.log('useAppAuth initialized:', { token, isAdmin, subscription });
 
   useEffect(() => {
-    if (token) {
+    if (token && !isAdmin) {
       loadSubscription();
     }
-  }, [token]);
+  }, [token, isAdmin]);
 
   const loadSubscription = async () => {
-    if (!token) return;
+    if (!token || isAdmin) return;
     
     try {
-      console.log('Loading subscription for token:', token);
       const res = await fetch(SUB_API, {
         headers: { 'X-User-Token': token }
       });
-      console.log('Subscription response status:', res.status);
       if (res.ok) {
         const data = await res.json();
-        console.log('Subscription data:', data);
         setSubscription(data);
-      } else {
-        console.error('Subscription request failed:', res.status);
       }
     } catch (error) {
       console.error('Failed to load subscription:', error);
@@ -43,7 +36,6 @@ export function useAppAuth() {
   };
 
   const handleLogin = (newToken: string, adminStatus: boolean = false) => {
-    console.log('handleLogin called with token:', newToken, 'isAdmin:', adminStatus);
     setToken(newToken);
     setIsAdmin(adminStatus);
     localStorage.setItem('userToken', newToken);
@@ -55,8 +47,6 @@ export function useAppAuth() {
       title: 'Вход выполнен',
       description: 'Теперь вы можете пользоваться всеми функциями приложения'
     });
-    
-    // useEffect автоматически загрузит подписку при изменении token
   };
 
   const handleLogout = () => {
