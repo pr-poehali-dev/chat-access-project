@@ -102,7 +102,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         
                         if email:
                             try:
-                                chat_url = 'https://chat.bankrot-kurs.ru'
+                                chat_url = 'https://chat-bankrot.ru'
                                 plan_name = 'неделю' if plan == 'week' else 'месяц'
                                 expires_date = expires_at.strftime('%d.%m.%Y')
                                 
