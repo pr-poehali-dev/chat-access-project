@@ -182,9 +182,12 @@ export default function ChatTab({
             (() => {
               const displayMessages = searchQuery.trim() ? filteredMessages : messages;
               const topLevelMessages = displayMessages.filter(m => !m.reply_to);
+              const lastReadId = parseInt(localStorage.getItem('lastReadMessageId') || '0');
+              
               const renderMessage = (msg: Message, depth: number = 0): React.ReactNode => {
                 const replies = displayMessages.filter(m => m.reply_to === msg.id);
                 const hasReplies = replies.length > 0;
+                const isNew = msg.id > lastReadId;
                 
                 return (
                   <ChatMessage
@@ -199,6 +202,7 @@ export default function ChatTab({
                     editingMessage={editingMessage}
                     editContent={editContent}
                     showReactionPicker={showReactionPicker}
+                    isNew={isNew}
                     onReply={setReplyingTo}
                     onEdit={startEdit}
                     onCancelEdit={cancelEdit}

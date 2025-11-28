@@ -286,9 +286,9 @@ export function useChat(
     if (!token) return;
     
     try {
-      const method = hasReacted ? 'DELETE' : 'POST';
-      const res = await fetch(`${CHAT_API}/reaction`, {
-        method,
+      const action = hasReacted ? 'unreact' : 'react';
+      const res = await fetch(`${CHAT_API}?action=${action}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token

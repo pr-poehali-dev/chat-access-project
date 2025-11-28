@@ -16,6 +16,7 @@ interface ChatMessageProps {
   editingMessage: Message | null;
   editContent: string;
   showReactionPicker: number | null;
+  isNew: boolean;
   onReply: (msg: Message) => void;
   onEdit: (msg: Message) => void;
   onCancelEdit: () => void;
@@ -43,6 +44,7 @@ export default function ChatMessage({
   editingMessage,
   editContent,
   showReactionPicker,
+  isNew,
   onReply,
   onEdit,
   onCancelEdit,
@@ -66,9 +68,9 @@ export default function ChatMessage({
         className={`p-2 rounded-lg border transition-colors ${
           msg.is_pinned
             ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
-            : hasReplies || isReply || msg.admin_reacted
-            ? 'bg-card border-border' 
-            : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+            : isNew
+            ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+            : 'bg-card border-border'
         }`}
         style={{ marginLeft: `${depth * 20}px` }}
       >
