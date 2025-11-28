@@ -12,6 +12,8 @@ export function useAppAuth() {
   const [showTokenDialog, setShowTokenDialog] = useState(false);
   const [showNameDialog, setShowNameDialog] = useState(false);
   const { toast } = useToast();
+  
+  console.log('useAppAuth initialized:', { token, isAdmin, subscription });
 
   useEffect(() => {
     if (token) {

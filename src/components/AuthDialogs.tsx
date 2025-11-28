@@ -59,10 +59,16 @@ export default function AuthDialogs({
       });
       
       const data = await res.json();
+      console.log('Admin login response:', res.status, data);
       
       if (res.ok && data.token) {
+        console.log('Admin login successful, token:', data.token);
         localStorage.setItem('userToken', data.token);
         localStorage.setItem('isAdmin', 'true');
+        console.log('localStorage after admin login:', {
+          userToken: localStorage.getItem('userToken'),
+          isAdmin: localStorage.getItem('isAdmin')
+        });
         onAdminLogin(data.token);
         onAdminDialogChange(false);
         toast({
@@ -70,6 +76,7 @@ export default function AuthDialogs({
           description: 'Вы вошли как администратор'
         });
       } else {
+        console.error('Admin login failed:', data);
         toast({
           title: 'Ошибка',
           description: data.error || 'Неверный пароль',
@@ -77,6 +84,7 @@ export default function AuthDialogs({
         });
       }
     } catch (error) {
+      console.error('Admin login error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось войти',
