@@ -6,7 +6,7 @@ from typing import Dict, Any
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Send support form emails to melni-v@yandex.ru
+    Business: Send support form emails to bankrotkurs@yandex.ru
     Args: event with httpMethod, body containing name, email, message
     Returns: HTTP response with success/error status
     '''
@@ -43,8 +43,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Все поля обязательны'})
         }
     
-    sender = 'melni-v@yandex.ru'
-    recipient = 'melni-v@yandex.ru'
+    import os
+    smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    sender = smtp_email
+    recipient = smtp_email
     
     msg = MIMEMultipart()
     msg['From'] = sender
@@ -65,7 +69,7 @@ Email: {user_email}
     try:
         with smtplib.SMTP('smtp.yandex.ru', 587) as server:
             server.starttls()
-            server.login('melni-v@yandex.ru', 'vxktzlglebdbwlti')
+            server.login(smtp_email, smtp_password)
             server.send_message(msg)
         
         return {

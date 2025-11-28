@@ -106,8 +106,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 plan_name = 'неделю' if plan == 'week' else 'месяц'
                                 expires_date = expires_at.strftime('%d.%m.%Y')
                                 
+                                smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
+                                smtp_password = os.environ.get('SMTP_PASSWORD')
+                                
                                 msg = MIMEMultipart()
-                                msg['From'] = 'melni-v@yandex.ru'
+                                msg['From'] = smtp_email
                                 msg['To'] = email
                                 msg['Subject'] = 'Доступ к закрытому чату курса "Банкротство физических лиц"'
                                 
@@ -134,7 +137,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 - Токен действителен до {expires_date}
 - Не передавайте токен другим людям
 
-По всем вопросам пишите на melni-v@yandex.ru
+По всем вопросам пишите на bankrotkurs@yandex.ru
 
 С уважением,
 Команда курса "Банкротство физических лиц"
@@ -144,7 +147,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 
                                 with smtplib.SMTP('smtp.yandex.ru', 587) as server:
                                     server.starttls()
-                                    server.login('melni-v@yandex.ru', 'vxktzlglebdbwlti')
+                                    server.login(smtp_email, smtp_password)
                                     server.send_message(msg)
                             except Exception as e:
                                 pass
