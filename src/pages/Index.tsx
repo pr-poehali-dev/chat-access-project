@@ -112,20 +112,22 @@ export default function Index() {
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsList className={`grid w-full ${subscription?.is_active || isAdmin ? 'grid-cols-5' : 'grid-cols-4'} mb-6`}>
               <TabsTrigger value="about" className="gap-2">
                 <Icon name="Info" size={16} />
                 О проекте
               </TabsTrigger>
-              <TabsTrigger value="chat" className="gap-2 relative">
-                <Icon name="MessageSquare" size={16} />
-                Чат
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </TabsTrigger>
+              {(subscription?.is_active || isAdmin) && (
+                <TabsTrigger value="chat" className="gap-2 relative">
+                  <Icon name="MessageSquare" size={16} />
+                  Чат
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </TabsTrigger>
+              )}
               <TabsTrigger value="subscription" className="gap-2">
                 <Icon name="CreditCard" size={16} />
                 Подписка
@@ -144,25 +146,27 @@ export default function Index() {
               <AboutTab />
             </TabsContent>
 
-            <TabsContent value="chat">
-              <ChatTab
-                messages={messages}
-                newMessage={newMessage}
-                isLoading={isLoading}
-                notificationPermission={notificationPermission}
-                isAdmin={isAdmin}
-                currentUserToken={token}
-                typingUsers={typingUsers}
-                onMessageChange={setNewMessage}
-                onSendMessage={sendMessage}
-                onRequestNotifications={requestNotificationPermission}
-                onDeleteMessage={deleteMessage}
-                onTogglePinMessage={togglePinMessage}
-                onEditMessage={editMessage}
-                onToggleReaction={toggleReaction}
-                onTyping={handleTyping}
-              />
-            </TabsContent>
+            {(subscription?.is_active || isAdmin) && (
+              <TabsContent value="chat">
+                <ChatTab
+                  messages={messages}
+                  newMessage={newMessage}
+                  isLoading={isLoading}
+                  notificationPermission={notificationPermission}
+                  isAdmin={isAdmin}
+                  currentUserToken={token}
+                  typingUsers={typingUsers}
+                  onMessageChange={setNewMessage}
+                  onSendMessage={sendMessage}
+                  onRequestNotifications={requestNotificationPermission}
+                  onDeleteMessage={deleteMessage}
+                  onTogglePinMessage={togglePinMessage}
+                  onEditMessage={editMessage}
+                  onToggleReaction={toggleReaction}
+                  onTyping={handleTyping}
+                />
+              </TabsContent>
+            )}
 
             <TabsContent value="subscription">
               <SubscriptionTab 
