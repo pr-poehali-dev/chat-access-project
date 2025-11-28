@@ -5,25 +5,19 @@ import Icon from '@/components/ui/icon';
 interface AppHeaderProps {
   token: string | null;
   isAdmin: boolean;
-  subscription: any;
-  authorName: string;
-  onTokenDialogOpen: () => void;
-  onAdminDialogOpen: () => void;
-  onNameDialogOpen: () => void;
-  onInstallDialogOpen: () => void;
+  onLoginClick: () => void;
+  onAdminClick: () => void;
   onLogout: () => void;
+  onInstallClick: () => void;
 }
 
 export default function AppHeader({
   token,
   isAdmin,
-  subscription,
-  authorName,
-  onTokenDialogOpen,
-  onAdminDialogOpen,
-  onNameDialogOpen,
-  onInstallDialogOpen,
+  onLoginClick,
+  onAdminClick,
   onLogout,
+  onInstallClick,
 }: AppHeaderProps) {
   return (
     <header className="border-b border-border bg-card">
@@ -41,7 +35,7 @@ export default function AppHeader({
           {!token && (
             <>
               <Button 
-                onClick={onTokenDialogOpen}
+                onClick={onLoginClick}
                 variant="default"
                 className="gap-2"
                 size="sm"
@@ -50,7 +44,7 @@ export default function AppHeader({
                 Войти с токеном
               </Button>
               <Button 
-                onClick={onAdminDialogOpen}
+                onClick={onAdminClick}
                 variant="outline"
                 className="gap-2"
                 size="sm"
@@ -62,15 +56,6 @@ export default function AppHeader({
           )}
           {token && (
             <>
-              <Button
-                onClick={onNameDialogOpen}
-                variant="ghost"
-                className="gap-2"
-                size="sm"
-              >
-                <Icon name="User" size={16} />
-                {authorName || 'Указать имя'}
-              </Button>
               {isAdmin && (
                 <Badge variant="default" className="gap-2">
                   <Icon name="Shield" size={14} />
@@ -89,19 +74,13 @@ export default function AppHeader({
             </>
           )}
           <Button 
-            onClick={onInstallDialogOpen}
+            onClick={onInstallClick}
             className="gap-2"
             size="sm"
           >
             <Icon name="Smartphone" size={16} />
             Скачать приложение
           </Button>
-          {subscription?.is_active && !isAdmin && (
-            <Badge variant="outline" className="gap-2 border-secondary text-secondary-foreground bg-secondary/10">
-              <Icon name="CheckCircle" size={14} />
-              Активна до {new Date(subscription.expires_at).toLocaleDateString('ru-RU')}
-            </Badge>
-          )}
         </div>
       </div>
     </header>
