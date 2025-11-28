@@ -143,7 +143,10 @@ export default function Index() {
             </TabsList>
 
             <TabsContent value="about">
-              <AboutTab />
+              <AboutTab 
+                hasActiveSubscription={subscription?.is_active || isAdmin}
+                onSubscriptionClick={() => setActiveTab('subscription')}
+              />
             </TabsContent>
 
             {(subscription?.is_active || isAdmin) && (

@@ -4,7 +4,12 @@ import Icon from '@/components/ui/icon';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-export default function AboutTab() {
+interface AboutTabProps {
+  hasActiveSubscription?: boolean;
+  onSubscriptionClick?: () => void;
+}
+
+export default function AboutTab({ hasActiveSubscription = false, onSubscriptionClick }: AboutTabProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [canInstall, setCanInstall] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -69,6 +74,30 @@ export default function AboutTab() {
           </div>
         </Card>
       </a>
+
+      {!hasActiveSubscription && (
+        <Card className="p-6 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/40">
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+              <Icon name="Unlock" size={32} className="text-white" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-xl font-bold mb-2">Получите доступ к закрытому чату</h3>
+              <p className="text-muted-foreground mb-3">
+                Оформите подписку и общайтесь с другими участниками курса, делитесь опытом и получайте советы
+              </p>
+            </div>
+            <Button 
+              onClick={onSubscriptionClick}
+              size="lg"
+              className="bg-green-600 hover:bg-green-700 gap-2 shadow-lg"
+            >
+              <Icon name="CreditCard" size={20} />
+              Оформить подписку
+            </Button>
+          </div>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-3 gap-4">
         <Card className="p-4 text-center">
