@@ -83,6 +83,7 @@ export default function ChatMessage({
           )}
           {msg.author_name && (() => {
             const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
+            const displayName = isAdminMessage ? 'Команда юристов Валентины Голосовой' : msg.author_name;
             const nameHash = msg.author_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             const userColors = [
               'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
@@ -98,7 +99,7 @@ export default function ChatMessage({
             return (
               <Badge variant="outline" className={`text-[10px] py-0 px-1.5 h-5 ${colorClass}`}>
                 <Icon name={isAdminMessage ? "Crown" : "User"} size={10} className="mr-0.5" />
-                {msg.author_name}
+                {displayName}
               </Badge>
             );
           })()}
