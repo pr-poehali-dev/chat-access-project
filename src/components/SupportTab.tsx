@@ -129,7 +129,7 @@ export default function SupportTab() {
             Email
           </h4>
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-foreground">melni-v@yandex.ru</span>
+            <span className="font-medium text-foreground">bankrotkurs@yandex.ru</span>
           </p>
         </Card>
 
@@ -158,6 +158,47 @@ export default function SupportTab() {
           <p className="text-sm text-muted-foreground">
             Перед отправкой вопроса проверьте раздел <strong>Правила</strong> — возможно, там уже есть ответ на ваш вопрос
           </p>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h4 className="font-semibold mb-4 flex items-center gap-2">
+          <Icon name="FileText" size={18} className="text-primary" />
+          Документы
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <Button 
+            variant="outline" 
+            className="justify-start gap-2 h-auto py-3"
+            onClick={() => window.open('https://bankrot-kurs.ru/#oferta', '_blank')}
+          >
+            <Icon name="FileCheck" size={16} />
+            <span className="text-left">Публичная оферта</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="justify-start gap-2 h-auto py-3"
+            onClick={() => window.open('https://bankrot-kurs.ru/#privacy', '_blank')}
+          >
+            <Icon name="Shield" size={16} />
+            <span className="text-left">Политика конфиденциальности</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="justify-start gap-2 h-auto py-3"
+            onClick={() => window.open('https://bankrot-kurs.ru/#consent', '_blank')}
+          >
+            <Icon name="UserCheck" size={16} />
+            <span className="text-left">Согласие на обработку ПД</span>
+          </Button>
+          <Button 
+            variant="outline" 
+            className="justify-start gap-2 h-auto py-3"
+            onClick={() => window.open('https://bankrot-kurs.ru/#requisites', '_blank')}
+          >
+            <Icon name="Building" size={16} />
+            <span className="text-left">Реквизиты</span>
+          </Button>
         </div>
       </Card>
     </div>
