@@ -29,9 +29,11 @@ export default function AppHeader({
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-            <Icon name="MessageSquare" size={24} className="text-primary-foreground" />
-          </div>
+          <img 
+            src="https://bankrot-kurs.ru/favicon.svg" 
+            alt="Логотип" 
+            className="w-10 h-10"
+          />
           <div>
             <h1 className="text-xl font-semibold text-foreground">Банкротство физ. лиц</h1>
             <p className="text-xs text-muted-foreground">Закрытое сообщество курса Валентины Голосовой</p>
