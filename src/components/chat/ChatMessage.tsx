@@ -66,9 +66,9 @@ export default function ChatMessage({
   return (
     <div key={msg.id} className="space-y-1.5">
       <div 
-        className={`p-2 rounded-lg border transition-colors ${
+        className={`p-2 rounded-lg border transition-all duration-500 ${
           isAdminMessage
-            ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-400 dark:border-amber-600 ring-2 ring-amber-300/50 dark:ring-amber-600/30 shadow-md'
+            ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-400 dark:border-amber-600 ring-2 ring-amber-300/50 dark:ring-amber-600/30 shadow-md animate-in fade-in slide-in-from-left-4'
             : msg.is_pinned
             ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
             : isNew
