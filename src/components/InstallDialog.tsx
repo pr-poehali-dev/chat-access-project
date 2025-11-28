@@ -74,15 +74,21 @@ export default function InstallDialog({ open, onOpenChange }: InstallDialogProps
         </DialogHeader>
         
         <div className="space-y-6 mt-4">
-          {canInstall && (
-            <Button 
-              onClick={handleInstallClick}
-              className="w-full h-12 text-lg"
-              size="lg"
-            >
-              <Icon name="Download" size={20} className="mr-2" />
-              Установить приложение
-            </Button>
+          <Button 
+            onClick={handleInstallClick}
+            className="w-full h-12 text-lg"
+            size="lg"
+          >
+            <Icon name="Download" size={20} className="mr-2" />
+            Установить приложение
+          </Button>
+          
+          {!canInstall && (
+            <Card className="p-3 bg-amber-500/10 border-amber-500/20 -mt-2">
+              <p className="text-xs text-muted-foreground text-center">
+                Автоматическая установка недоступна в вашем браузере. Следуйте инструкциям ниже ↓
+              </p>
+            </Card>
           )}
           <div className="space-y-3">
             <h4 className="font-semibold flex items-center gap-2">
