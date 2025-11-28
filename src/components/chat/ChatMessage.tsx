@@ -61,12 +61,15 @@ export default function ChatMessage({
   renderMessage
 }: ChatMessageProps) {
   const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
+  const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
 
   return (
     <div key={msg.id} className="space-y-1.5">
       <div 
         className={`p-2 rounded-lg border transition-colors ${
-          msg.is_pinned
+          isAdminMessage
+            ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-400 dark:border-amber-600 ring-2 ring-amber-300/50 dark:ring-amber-600/30 shadow-md'
+            : msg.is_pinned
             ? 'bg-secondary/20 border-secondary ring-2 ring-secondary/30'
             : isNew
             ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
