@@ -116,15 +116,19 @@ export function useChat(
             });
           });
         }
-      } else if (!silent && !isAdmin) {
-        toast({
-          title: 'Ошибка доступа',
-          description: 'Проверьте статус подписки',
-          variant: 'destructive'
-        });
+      } else if (!silent) {
+        // Показываем ошибку только если нет ни подписки, ни прав админа
+        if (!subscription?.is_active && !isAdmin) {
+          toast({
+            title: 'Ошибка доступа',
+            description: 'Проверьте статус подписки',
+            variant: 'destructive'
+          });
+        }
       }
     } catch (error) {
-      if (!silent && !isAdmin) {
+      if (!silent) {
+        console.error('Error loading messages:', error);
         toast({
           title: 'Ошибка',
           description: 'Не удалось загрузить сообщения',

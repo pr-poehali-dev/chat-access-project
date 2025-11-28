@@ -49,27 +49,12 @@ export function useAppAuth() {
     setShowTokenDialog(false);
     setShowAdminDialog(false);
     
-    // Загружаем подписку сразу после логина
-    if (newToken && !adminStatus) {
-      setTimeout(() => {
-        fetch(SUB_API, {
-          headers: { 'X-User-Token': newToken }
-        })
-          .then(res => res.ok ? res.json() : null)
-          .then(data => {
-            if (data) {
-              console.log('Subscription loaded after login:', data);
-              setSubscription(data);
-            }
-          })
-          .catch(err => console.error('Error loading subscription:', err));
-      }, 100);
-    }
-    
     toast({
       title: 'Вход выполнен',
       description: 'Теперь вы можете пользоваться всеми функциями приложения'
     });
+    
+    // useEffect автоматически загрузит подписку при изменении token
   };
 
   const handleLogout = () => {
