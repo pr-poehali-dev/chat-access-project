@@ -151,6 +151,28 @@ export default function ChatTab({
           onSearchChange={setSearchQuery}
         />
 
+        <div className="grid md:grid-cols-2 gap-3">
+          <Card className="p-3 bg-blue-500/10 border-blue-500/20">
+            <div className="flex items-start gap-2">
+              <Icon name="Clock" size={18} className="text-blue-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-sm mb-1">Время работы чата</h4>
+                <p className="text-xs text-muted-foreground">Понедельник - Пятница: 10:00 - 18:00</p>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-3 bg-amber-500/10 border-amber-500/20">
+            <div className="flex items-start gap-2">
+              <Icon name="AlertCircle" size={18} className="text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-sm mb-1">Хранение сообщений</h4>
+                <p className="text-xs text-muted-foreground">Сообщения сохраняются 24 часа. Важные документы скачивайте сразу!</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className="space-y-2 max-h-[600px] overflow-y-auto p-3 bg-muted/30 rounded-lg">
           {messages.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
