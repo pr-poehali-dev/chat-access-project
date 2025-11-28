@@ -1,7 +1,54 @@
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AboutTab() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [canInstall, setCanInstall] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      setShowInstructions(true);
+      toast({
+        title: '📱 Инструкция по установке',
+        description: 'Следуйте инструкциям ниже для вашей операционной системы',
+        duration: 5000,
+      });
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      toast({
+        title: '✅ Приложение установлено!',
+        description: 'Теперь вы можете запускать приложение с главного экрана',
+        duration: 5000,
+      });
+    }
+    
+    setDeferredPrompt(null);
+    setCanInstall(false);
+  };
   return (
     <div className="space-y-6">
       <a href="https://bankrot-kurs.ru/" target="_blank" rel="noopener noreferrer" className="block">
@@ -142,44 +189,53 @@ export default function AboutTab() {
       <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/30">
         <div className="flex items-start gap-4">
           <Icon name="Smartphone" size={32} className="text-blue-600 shrink-0" />
-          <div>
+          <div className="flex-1">
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               📱 Установите приложение на телефон
             </h3>
             
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2">
-                  <Icon name="Apple" size={18} className="text-foreground" />
-                  Для iPhone (iOS):
-                </h4>
-                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                  <li>Откройте этот сайт в браузере <strong>Safari</strong></li>
-                  <li>Нажмите кнопку "Поделиться" <Icon name="Share" size={14} className="inline" /> (внизу экрана)</li>
-                  <li>Выберите "На экран «Домой»"</li>
-                  <li>Нажмите "Добавить" — готово! 🎉</li>
-                </ol>
-              </div>
+            <p className="text-muted-foreground mb-4">
+              Установите приложение для быстрого доступа с главного экрана, работы офлайн и получения push-уведомлений
+            </p>
 
-              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2">
-                  <Icon name="Smartphone" size={18} className="text-foreground" />
-                  Для Android:
-                </h4>
-                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                  <li>Откройте этот сайт в <strong>Chrome</strong></li>
-                  <li>Нажмите меню ⋮ (три точки в углу)</li>
-                  <li>Выберите "Установить приложение" или "Добавить на главный экран"</li>
-                  <li>Подтвердите установку — готово! 🎉</li>
-                </ol>
-              </div>
+            <Button 
+              onClick={handleInstallClick}
+              size="lg"
+              className="w-full mb-4"
+            >
+              <Icon name="Download" size={20} className="mr-2" />
+              {canInstall ? 'Установить приложение' : 'Инструкция по установке'}
+            </Button>
 
-              <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                <p className="text-sm text-muted-foreground">
-                  <Icon name="Zap" size={16} className="inline text-primary" /> <strong>Преимущества:</strong> Быстрый доступ с главного экрана, работает офлайн, push-уведомления о новых сообщениях
-                </p>
+            {showInstructions && (
+              <div className="space-y-4 mt-4 pt-4 border-t border-border">
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Apple" size={18} className="text-foreground" />
+                    Для iPhone (iOS):
+                  </h4>
+                  <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                    <li>Откройте этот сайт в браузере <strong>Safari</strong></li>
+                    <li>Нажмите кнопку "Поделиться" <Icon name="Share" size={14} className="inline" /> (внизу экрана)</li>
+                    <li>Выберите "На экран «Домой»"</li>
+                    <li>Нажмите "Добавить" — готово! 🎉</li>
+                  </ol>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Smartphone" size={18} className="text-foreground" />
+                    Для Android:
+                  </h4>
+                  <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                    <li>Откройте этот сайт в <strong>Chrome</strong></li>
+                    <li>Нажмите меню ⋮ (три точки в углу)</li>
+                    <li>Выберите "Установить приложение" или "Добавить на главный экран"</li>
+                    <li>Подтвердите установку — готово! 🎉</li>
+                  </ol>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </Card>

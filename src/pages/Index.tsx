@@ -71,11 +71,7 @@ export default function Index() {
     if (!hasSeenInstallPrompt) {
       localStorage.setItem('hasSeenInstallPrompt', 'true');
       setTimeout(() => {
-        toast({
-          title: '📱 Установите приложение',
-          description: 'Добавьте приложение на главный экран для быстрого доступа!',
-          duration: 7000,
-        });
+        setShowInstallDialog(true);
       }, 3000);
     }
   }, []);
@@ -208,7 +204,7 @@ export default function Index() {
 
       <InstallDialog 
         open={showInstallDialog}
-        onClose={() => setShowInstallDialog(false)}
+        onOpenChange={setShowInstallDialog}
       />
     </div>
   );

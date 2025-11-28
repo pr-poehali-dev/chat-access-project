@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,6 +8,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface InstallDialogProps {
   open: boolean;
@@ -14,6 +17,49 @@ interface InstallDialogProps {
 }
 
 export default function InstallDialog({ open, onOpenChange }: InstallDialogProps) {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [canInstall, setCanInstall] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setCanInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      toast({
+        title: '⚠️ Установка недоступна',
+        description: 'Приложение уже установлено или ваш браузер не поддерживает автоматическую установку. Следуйте инструкциям ниже.',
+        duration: 5000,
+      });
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      toast({
+        title: '✅ Приложение установлено!',
+        description: 'Теперь вы можете запускать приложение с главного экрана',
+        duration: 5000,
+      });
+      onOpenChange(false);
+    }
+    
+    setDeferredPrompt(null);
+    setCanInstall(false);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -28,6 +74,16 @@ export default function InstallDialog({ open, onOpenChange }: InstallDialogProps
         </DialogHeader>
         
         <div className="space-y-6 mt-4">
+          {canInstall && (
+            <Button 
+              onClick={handleInstallClick}
+              className="w-full h-12 text-lg"
+              size="lg"
+            >
+              <Icon name="Download" size={20} className="mr-2" />
+              Установить приложение
+            </Button>
+          )}
           <div className="space-y-3">
             <h4 className="font-semibold flex items-center gap-2">
               <Icon name="Apple" size={20} className="text-foreground" />
