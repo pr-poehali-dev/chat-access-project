@@ -287,6 +287,8 @@ export function useChat(
     
     try {
       const action = hasReacted ? 'unreact' : 'react';
+      console.log('toggleReaction:', { messageId, emoji, hasReacted, action });
+      
       const res = await fetch(`${CHAT_API}?action=${action}`, {
         method: 'PATCH',
         headers: {
@@ -299,11 +301,26 @@ export function useChat(
         })
       });
       
+      console.log('toggleReaction response:', res.status, res.ok);
+      
       if (res.ok) {
         loadMessages(true);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('toggleReaction failed:', errorData);
+        toast({
+          title: 'Ошибка реакции',
+          description: errorData.error || 'Не удалось поставить реакцию',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
-      console.error('Failed to toggle reaction');
+      console.error('Failed to toggle reaction:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось поставить реакцию',
+        variant: 'destructive'
+      });
     }
   };
 
