@@ -170,7 +170,7 @@ export default function SupportTab() {
           <Button 
             variant="outline" 
             className="justify-start gap-2 h-auto py-3"
-            onClick={() => window.open('https://bankrot-kurs.ru/#oferta', '_blank')}
+            onClick={() => window.open('https://bankrot-kurs.ru/oferta', '_blank')}
           >
             <Icon name="FileCheck" size={16} />
             <span className="text-left">Публичная оферта</span>
@@ -178,7 +178,7 @@ export default function SupportTab() {
           <Button 
             variant="outline" 
             className="justify-start gap-2 h-auto py-3"
-            onClick={() => window.open('https://bankrot-kurs.ru/#privacy', '_blank')}
+            onClick={() => window.open('https://bankrot-kurs.ru/privacy', '_blank')}
           >
             <Icon name="Shield" size={16} />
             <span className="text-left">Политика конфиденциальности</span>
@@ -186,7 +186,7 @@ export default function SupportTab() {
           <Button 
             variant="outline" 
             className="justify-start gap-2 h-auto py-3"
-            onClick={() => window.open('https://bankrot-kurs.ru/#consent', '_blank')}
+            onClick={() => window.open('https://bankrot-kurs.ru/personal-data-consent', '_blank')}
           >
             <Icon name="UserCheck" size={16} />
             <span className="text-left">Согласие на обработку ПД</span>
@@ -194,7 +194,7 @@ export default function SupportTab() {
           <Button 
             variant="outline" 
             className="justify-start gap-2 h-auto py-3"
-            onClick={() => window.open('https://bankrot-kurs.ru/#requisites', '_blank')}
+            onClick={() => window.open('https://bankrot-kurs.ru/requisites', '_blank')}
           >
             <Icon name="Building" size={16} />
             <span className="text-left">Реквизиты</span>
