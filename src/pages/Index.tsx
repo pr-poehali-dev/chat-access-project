@@ -201,11 +201,11 @@ export default function Index() {
         showTokenDialog={showTokenDialog}
         showNameDialog={showNameDialog}
         authorName={authorName}
-        onAdminClose={() => setShowAdminDialog(false)}
-        onTokenClose={() => setShowTokenDialog(false)}
-        onNameClose={() => setShowNameDialog(false)}
-        onAdminLogin={handleLogin}
-        onTokenLogin={handleLogin}
+        onAdminDialogChange={setShowAdminDialog}
+        onTokenDialogChange={setShowTokenDialog}
+        onNameDialogChange={setShowNameDialog}
+        onAdminLogin={(token) => handleLogin(token, true)}
+        onTokenLogin={(token) => handleLogin(token, false)}
         onNameSave={handleNameSave}
       />
 
