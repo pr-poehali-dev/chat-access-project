@@ -58,12 +58,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(body_str)
         
         if 'object' in body_data and body_data.get('event') == 'payment.succeeded':
-            payment_id = body_data['object']['id']
-            metadata = body_data['object'].get('metadata', {})
+            payment_obj = body_data['object']
+            payment_id = payment_obj['id']
+            metadata = payment_obj.get('metadata', {})
             invoice_id = metadata.get('invoice_id')
             plan = metadata.get('plan')
-            receipt = body_data['object'].get('receipt', {})
-            email = receipt.get('email') if receipt else None
+            
+            email = None
+            receipt = payment_obj.get('receipt', {})
+            if receipt:
+                email = receipt.get('email') or receipt.get('customer', {}).get('email')
+            
+            if not email:
+                email = payment_obj.get('receipt_email') or payment_obj.get('metadata', {}).get('email')
+            
+            print(f"Webhook received: payment_id={payment_id}, invoice_id={invoice_id}, plan={plan}, email={email}")
+            print(f"Full webhook data: {json.dumps(body_data, ensure_ascii=False)}")
             
             if not invoice_id or not plan:
                 return {
@@ -100,6 +110,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         
                         conn.commit()
                         
+                        print(f"Creating subscription: token={token[:10]}..., email={email}, plan={plan}, expires={expires_at}")
+                        
                         if email:
                             try:
                                 chat_url = 'https://chat-bankrot.ru'
@@ -108,6 +120,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 
                                 smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
                                 smtp_password = os.environ.get('SMTP_PASSWORD')
+                                
+                                print(f"Preparing email to: {email}")
                                 
                                 msg = MIMEMultipart()
                                 msg['From'] = smtp_email
@@ -149,8 +163,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                     server.starttls()
                                     server.login(smtp_email, smtp_password)
                                     server.send_message(msg)
+                                    print(f"Email sent successfully to {email}")
                             except Exception as e:
-                                pass
+                                print(f"Email sending failed: {e}")
+                        else:
+                            print("No email provided, skipping email sending")
             finally:
                 conn.close()
             

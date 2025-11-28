@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Missing email",
+      "method": "POST",
+      "body": {
+        "token": "test123"
+      },
+      "expectedStatus": 400
+    }
+  ]
+}
