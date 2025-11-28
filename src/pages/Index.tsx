@@ -56,7 +56,7 @@ export default function Index() {
     editMessage,
     toggleReaction,
     handleTyping
-  } = useChat(token, authorName, activeTab, subscription, showNotification);
+  } = useChat(token, authorName, activeTab, subscription, showNotification, isAdmin);
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
   console.log('subscription state:', subscription);

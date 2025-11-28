@@ -34,7 +34,8 @@ export function useChat(
   authorName: string,
   activeTab: string,
   subscription: any,
-  showNotification: (message: string) => void
+  showNotification: (message: string) => void,
+  isAdmin: boolean = false
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -59,17 +60,17 @@ export function useChat(
   }, [activeTab, messages]);
 
   useEffect(() => {
-    if (activeTab === 'chat' && token && subscription?.is_active) {
+    if (activeTab === 'chat' && token && (subscription?.is_active || isAdmin)) {
       const interval = setInterval(() => {
         loadMessages(true);
       }, 10000);
       
       return () => clearInterval(interval);
     }
-  }, [activeTab, token, subscription?.is_active]);
+  }, [activeTab, token, subscription?.is_active, isAdmin]);
 
   useEffect(() => {
-    if (token && subscription?.is_active && 'serviceWorker' in navigator) {
+    if (token && (subscription?.is_active || isAdmin) && 'serviceWorker' in navigator) {
       const bgInterval = setInterval(() => {
         navigator.serviceWorker.ready.then(registration => {
           registration.active?.postMessage({
@@ -115,7 +116,7 @@ export function useChat(
             });
           });
         }
-      } else if (!silent) {
+      } else if (!silent && !isAdmin) {
         toast({
           title: 'Ошибка доступа',
           description: 'Проверьте статус подписки',
@@ -123,7 +124,7 @@ export function useChat(
         });
       }
     } catch (error) {
-      if (!silent) {
+      if (!silent && !isAdmin) {
         toast({
           title: 'Ошибка',
           description: 'Не удалось загрузить сообщения',
