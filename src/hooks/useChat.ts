@@ -286,19 +286,21 @@ export function useChat(
     if (!token) return;
     
     try {
-      const action = hasReacted ? 'unreact' : 'react';
-      console.log('toggleReaction:', { messageId, emoji, hasReacted, action });
+      const url = `${CHAT_API}?action=reaction&message_id=${messageId}`;
+      const payload = { 
+        emoji: emoji,
+        remove: hasReacted
+      };
       
-      const res = await fetch(`${CHAT_API}?action=${action}`, {
+      console.log('toggleReaction request:', { url, payload, hasReacted });
+      
+      const res = await fetch(url, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token
         },
-        body: JSON.stringify({ 
-          message_id: messageId,
-          emoji: emoji
-        })
+        body: JSON.stringify(payload)
       });
       
       console.log('toggleReaction response:', res.status, res.ok);
@@ -307,7 +309,7 @@ export function useChat(
         loadMessages(true);
       } else {
         const errorData = await res.json().catch(() => ({}));
-        console.error('toggleReaction failed:', errorData);
+        console.error('toggleReaction failed:', res.status, errorData);
         toast({
           title: 'Ошибка реакции',
           description: errorData.error || 'Не удалось поставить реакцию',
