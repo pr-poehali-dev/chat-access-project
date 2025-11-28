@@ -59,6 +59,8 @@ export default function Index() {
   } = useChat(token, authorName, activeTab, subscription, showNotification);
 
   console.log('isAdmin state:', isAdmin, 'localStorage isAdmin:', localStorage.getItem('isAdmin'));
+  console.log('subscription state:', subscription);
+  console.log('token state:', token);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {

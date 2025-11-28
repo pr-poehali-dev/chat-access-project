@@ -20,26 +20,52 @@ export function useAppAuth() {
   }, [token]);
 
   const loadSubscription = async () => {
+    if (!token) return;
+    
     try {
+      console.log('Loading subscription for token:', token);
       const res = await fetch(SUB_API, {
-        headers: { 'X-User-Token': token! }
+        headers: { 'X-User-Token': token }
       });
+      console.log('Subscription response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('Subscription data:', data);
         setSubscription(data);
+      } else {
+        console.error('Subscription request failed:', res.status);
       }
     } catch (error) {
-      console.error('Failed to load subscription');
+      console.error('Failed to load subscription:', error);
     }
   };
 
   const handleLogin = (newToken: string, adminStatus: boolean = false) => {
+    console.log('handleLogin called with token:', newToken, 'isAdmin:', adminStatus);
     setToken(newToken);
     setIsAdmin(adminStatus);
     localStorage.setItem('userToken', newToken);
     localStorage.setItem('isAdmin', adminStatus.toString());
     setShowTokenDialog(false);
     setShowAdminDialog(false);
+    
+    // Загружаем подписку сразу после логина
+    if (newToken && !adminStatus) {
+      setTimeout(() => {
+        fetch(SUB_API, {
+          headers: { 'X-User-Token': newToken }
+        })
+          .then(res => res.ok ? res.json() : null)
+          .then(data => {
+            if (data) {
+              console.log('Subscription loaded after login:', data);
+              setSubscription(data);
+            }
+          })
+          .catch(err => console.error('Error loading subscription:', err));
+      }, 100);
+    }
+    
     toast({
       title: 'Вход выполнен',
       description: 'Теперь вы можете пользоваться всеми функциями приложения'
