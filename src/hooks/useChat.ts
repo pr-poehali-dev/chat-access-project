@@ -185,13 +185,12 @@ export function useChat(
     if (!token) return;
     
     try {
-      const res = await fetch(CHAT_API, {
+      const res = await fetch(`${CHAT_API}?id=${messageId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token
-        },
-        body: JSON.stringify({ message_id: messageId })
+        }
       });
       
       if (res.ok) {
@@ -201,9 +200,10 @@ export function useChat(
           description: 'Сообщение успешно удалено'
         });
       } else {
+        const errorData = await res.json().catch(() => ({ error: 'Неизвестная ошибка' }));
         toast({
           title: 'Ошибка',
-          description: 'Не удалось удалить сообщение',
+          description: errorData.error || 'Не удалось удалить сообщение',
           variant: 'destructive'
         });
       }
@@ -220,20 +220,26 @@ export function useChat(
     if (!token) return;
     
     try {
-      const res = await fetch(CHAT_API, {
+      const res = await fetch(`${CHAT_API}?id=${messageId}&action=pin`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token
         },
         body: JSON.stringify({ 
-          message_id: messageId,
           is_pinned: !isPinned
         })
       });
       
       if (res.ok) {
         loadMessages();
+      } else {
+        const errorData = await res.json().catch(() => ({ error: 'Неизвестная ошибка' }));
+        toast({
+          title: 'Ошибка',
+          description: errorData.error || 'Не удалось закрепить/открепить сообщение',
+          variant: 'destructive'
+        });
       }
     } catch (error) {
       toast({
@@ -248,14 +254,13 @@ export function useChat(
     if (!token) return;
     
     try {
-      const res = await fetch(CHAT_API, {
-        method: 'PUT',
+      const res = await fetch(`${CHAT_API}?id=${messageId}&action=edit`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token
         },
         body: JSON.stringify({ 
-          message_id: messageId,
           content: newContent
         })
       });
@@ -267,9 +272,10 @@ export function useChat(
           description: 'Изменения сохранены'
         });
       } else {
+        const errorData = await res.json().catch(() => ({ error: 'Неизвестная ошибка' }));
         toast({
           title: 'Ошибка',
-          description: 'Не удалось отредактировать сообщение',
+          description: errorData.error || 'Не удалось отредактировать сообщение',
           variant: 'destructive'
         });
       }
