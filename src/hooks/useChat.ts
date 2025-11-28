@@ -286,7 +286,7 @@ export function useChat(
     if (!token) return;
     
     try {
-      const url = `${CHAT_API}?action=reaction&message_id=${messageId}`;
+      const url = `${CHAT_API}?action=reaction&id=${messageId}`;
       const payload = { 
         emoji: emoji,
         remove: hasReacted
@@ -303,12 +303,18 @@ export function useChat(
         body: JSON.stringify(payload)
       });
       
-      console.log('toggleReaction response:', res.status, res.ok);
+      const responseText = await res.text();
+      console.log('toggleReaction response:', res.status, res.ok, responseText);
       
       if (res.ok) {
         loadMessages(true);
       } else {
-        const errorData = await res.json().catch(() => ({}));
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch {
+          errorData = { error: responseText };
+        }
         console.error('toggleReaction failed:', res.status, errorData);
         toast({
           title: 'Ошибка реакции',
