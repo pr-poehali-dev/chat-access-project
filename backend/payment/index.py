@@ -87,11 +87,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     safe_invoice_id = invoice_id.replace("'", "''")
                     cur.execute(
-                        f"SELECT status FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = '{safe_invoice_id}'"
+                        f"SELECT status, email FROM t_p8566807_chat_access_project.payment_orders WHERE invoice_id = '{safe_invoice_id}'"
                     )
                     order = cur.fetchone()
                     
                     if order and order['status'] == 'pending':
+                        if not email and order.get('email'):
+                            email = order['email']
+                        
                         token = secrets.token_urlsafe(32)
                         expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
                         
@@ -199,8 +202,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 safe_inv_id = inv_id.replace("'", "''")
                 safe_plan = plan.replace("'", "''")
+                safe_email = email.replace("'", "''")
                 cur.execute(
-                    f"INSERT INTO t_p8566807_chat_access_project.payment_orders (invoice_id, plan, amount, status) VALUES ('{safe_inv_id}', '{safe_plan}', {amount}, 'pending')"
+                    f"INSERT INTO t_p8566807_chat_access_project.payment_orders (invoice_id, plan, amount, status, email) VALUES ('{safe_inv_id}', '{safe_plan}', {amount}, 'pending', '{safe_email}')"
                 )
                 conn.commit()
         finally:
@@ -243,7 +247,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             },
             "metadata": {
                 "invoice_id": inv_id,
-                "plan": plan
+                "plan": plan,
+                "email": email
             }
         }
         

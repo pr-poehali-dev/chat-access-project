@@ -1,4 +1,5 @@
 {
+  "resend-token": "https://functions.poehali.dev/1c625593-1c7b-4e0a-bff0-53101a38ef7b",
   "create-subscription": "https://functions.poehali.dev/b9ee860b-be5b-446b-86d3-bf4e54802fed",
   "send-token": "https://functions.poehali.dev/3b109de4-c279-4008-a2ce-9013c2ed3f42",
   "admin-login": "https://functions.poehali.dev/abd02ab1-6477-487f-8745-ebed9c3cb6ad",
