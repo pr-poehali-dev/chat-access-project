@@ -190,7 +190,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Invalid plan'})
             }
         
-        amount = 1 if plan == 'week' else 2
+        amount = 1999 if plan == 'week' else 3999
         inv_id = secrets.token_urlsafe(16)
         description = f"Подписка на {'неделю' if plan == 'week' else 'месяц'}"
         
