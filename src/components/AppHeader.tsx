@@ -21,9 +21,9 @@ export default function AppHeader({
 }: AppHeaderProps) {
   return (
     <header className="border-b border-border bg-card">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row items-start md:items-center gap-4 md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <Icon name="MessageSquare" size={24} className="text-primary-foreground" />
           </div>
           <div>
@@ -31,7 +31,7 @@ export default function AppHeader({
             <p className="text-xs text-muted-foreground">Закрытое сообщество курса Валентины Голосовой</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           {!token && (
             <>
               <Button 
@@ -75,11 +75,12 @@ export default function AppHeader({
           )}
           <Button 
             onClick={onInstallClick}
-            className="gap-2"
+            className="gap-2 flex-shrink-0"
             size="sm"
           >
             <Icon name="Smartphone" size={16} />
-            Скачать приложение
+            <span className="hidden sm:inline">Скачать приложение</span>
+            <span className="sm:hidden">Скачать</span>
           </Button>
         </div>
       </div>
