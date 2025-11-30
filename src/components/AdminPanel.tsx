@@ -20,7 +20,6 @@ interface AdminPanelProps {
 }
 
 const ADMIN_API = 'https://functions.poehali.dev/72b37491-e95d-4fd9-a060-14e7602127bd';
-const RESEND_API = 'https://functions.poehali.dev/1c625593-1c7b-4e0a-bff0-53101a38ef7b';
 
 export default function AdminPanel({ token }: AdminPanelProps) {
   const [users, setUsers] = useState<User[]>([]);

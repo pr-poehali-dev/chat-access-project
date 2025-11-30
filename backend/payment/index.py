@@ -124,7 +124,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
                                 smtp_password = os.environ.get('SMTP_PASSWORD')
                                 
-                                print(f"Preparing email to: {email}")
+                                if not smtp_password:
+                                    print(f"ERROR: SMTP_PASSWORD not configured!")
+                                    raise Exception("SMTP not configured")
+                                
+                                print(f"Preparing email to: {email}, SMTP configured: {bool(smtp_password)}")
                                 
                                 msg = MIMEMultipart()
                                 msg['From'] = smtp_email
@@ -164,11 +168,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 
                                 with smtplib.SMTP('smtp.yandex.ru', 587) as server:
                                     server.starttls()
+                                    print(f"SMTP connected, attempting login...")
                                     server.login(smtp_email, smtp_password)
+                                    print(f"SMTP login successful, sending email...")
                                     server.send_message(msg)
-                                    print(f"Email sent successfully to {email}")
+                                    print(f"✅ Email sent successfully to {email}")
                             except Exception as e:
-                                print(f"Email sending failed: {e}")
+                                print(f"❌ Email sending failed: {type(e).__name__}: {str(e)}")
+                                import traceback
+                                print(f"Traceback: {traceback.format_exc()}")
                         else:
                             print("No email provided, skipping email sending")
             finally:
