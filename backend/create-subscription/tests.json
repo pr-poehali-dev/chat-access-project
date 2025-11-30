@@ -1,0 +1,15 @@
+{
+  "tests": [
+    {
+      "name": "Create subscription without email",
+      "method": "POST",
+      "body": {
+        "plan": "month"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Email is required"
+      }
+    }
+  ]
+}
