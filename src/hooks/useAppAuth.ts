@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const SUB_API = 'https://functions.poehali.dev/957d493f-5bdb-4f6b-9b96-4f755f9d1d9b';
+const VERIFY_TOKEN_API = 'https://functions.poehali.dev/c499486b-a97c-4ff5-8905-0ccd7fddcf9d';
 
 export function useAppAuth() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('userToken'));
@@ -13,13 +14,50 @@ export function useAppAuth() {
   const [showNameDialog, setShowNameDialog] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (token && !isAdmin) {
-      loadSubscription();
-    }
-  }, [token, isAdmin]);
+  const handleLogin = useCallback((newToken: string, adminStatus: boolean = false) => {
+    setToken(newToken);
+    setIsAdmin(adminStatus);
+    localStorage.setItem('userToken', newToken);
+    localStorage.setItem('isAdmin', adminStatus.toString());
+    setShowTokenDialog(false);
+    setShowAdminDialog(false);
+    
+    toast({
+      title: 'Вход выполнен',
+      description: 'Теперь вы можете пользоваться всеми функциями приложения'
+    });
+  }, [toast]);
 
-  const loadSubscription = async () => {
+  const verifyAndLoginWithToken = useCallback(async (tokenToVerify: string) => {
+    try {
+      const res = await fetch(`${VERIFY_TOKEN_API}?chat_token=${tokenToVerify}`);
+      const data = await res.json();
+      
+      if (data.valid) {
+        handleLogin(tokenToVerify, false);
+        window.history.replaceState({}, '', window.location.pathname);
+        toast({
+          title: 'Добро пожаловать!',
+          description: `Привет, ${data.full_name}! Ваша подписка действует до ${new Date(data.expires_at).toLocaleDateString('ru-RU')}`
+        });
+      } else {
+        toast({
+          title: 'Ошибка входа',
+          description: data.error || 'Токен недействителен',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось проверить токен',
+        variant: 'destructive'
+      });
+    }
+  }, [handleLogin, toast]);
+
+  const loadSubscription = useCallback(async () => {
     if (!token || isAdmin) return;
     
     try {
@@ -33,21 +71,18 @@ export function useAppAuth() {
     } catch (error) {
       console.error('Failed to load subscription:', error);
     }
-  };
+  }, [token, isAdmin]);
 
-  const handleLogin = (newToken: string, adminStatus: boolean = false) => {
-    setToken(newToken);
-    setIsAdmin(adminStatus);
-    localStorage.setItem('userToken', newToken);
-    localStorage.setItem('isAdmin', adminStatus.toString());
-    setShowTokenDialog(false);
-    setShowAdminDialog(false);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
     
-    toast({
-      title: 'Вход выполнен',
-      description: 'Теперь вы можете пользоваться всеми функциями приложения'
-    });
-  };
+    if (urlToken && !token) {
+      verifyAndLoginWithToken(urlToken);
+    } else if (token && !isAdmin) {
+      loadSubscription();
+    }
+  }, [token, isAdmin, verifyAndLoginWithToken, loadSubscription]);
 
   const handleLogout = () => {
     setToken(null);
