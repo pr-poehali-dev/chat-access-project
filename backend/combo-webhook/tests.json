@@ -1,0 +1,47 @@
+{
+  "tests": [
+    {
+      "name": "Test webhook with valid API key",
+      "method": "POST",
+      "headers": {
+        "X-Api-Key": "bankrot_combo_secret_2025"
+      },
+      "body": {
+        "email": "test-combo@example.com",
+        "amount": 4999
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "token": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test webhook without API key",
+      "method": "POST",
+      "body": {
+        "email": "test@example.com",
+        "amount": 4999
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Unauthorized"
+      }
+    },
+    {
+      "name": "Test webhook without email",
+      "method": "POST",
+      "headers": {
+        "X-Api-Key": "bankrot_combo_secret_2025"
+      },
+      "body": {
+        "amount": 4999
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Email is required"
+      }
+    }
+  ]
+}
