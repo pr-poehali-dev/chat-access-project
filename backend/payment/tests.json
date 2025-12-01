@@ -6,6 +6,36 @@
       "body": {},
       "expectedStatus": 400,
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create weekly payment (1999₽)",
+      "method": "POST",
+      "body": {
+        "plan": "week",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create monthly payment (3999₽)",
+      "method": "POST",
+      "body": {
+        "plan": "month",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create combo payment (4999₽)",
+      "method": "POST",
+      "body": {
+        "plan": "combo",
+        "email": "test@example.com"
+      },
+      "expectedStatus": 200,
+      "bodyMatcher": "partial"
     }
   ]
 }

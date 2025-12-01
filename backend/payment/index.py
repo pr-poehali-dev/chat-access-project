@@ -18,7 +18,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Args: event - dict with httpMethod, body, queryStringParameters
           context - object with request_id
     Returns: HTTP response with payment URL or webhook confirmation
-    Version: 1.2
+    Supports: week (1999₽/7 days), month (3999₽/30 days), combo (4999₽/30 days)
+    Version: 1.3
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -96,7 +97,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             email = order['email']
                         
                         token = secrets.token_urlsafe(32)
-                        expires_at = datetime.now() + timedelta(days=7 if plan == 'week' else 30)
+                        days = 7 if plan == 'week' else 30
+                        expires_at = datetime.now() + timedelta(days=days)
                         
                         safe_token = token.replace("'", "''")
                         safe_plan = plan.replace("'", "''")
@@ -191,7 +193,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         plan = body_data.get('plan')
         email = body_data.get('email', 'customer@example.com')
         
-        if plan not in ['week', 'month']:
+        if plan not in ['week', 'month', 'combo']:
             return {
                 'statusCode': 400,
                 'headers': {
@@ -201,9 +203,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Invalid plan'})
             }
         
-        amount = 1999 if plan == 'week' else 3999
+        amount_map = {'week': 1999, 'month': 3999, 'combo': 4999}
+        amount = amount_map[plan]
         inv_id = secrets.token_urlsafe(16)
-        description = f"Подписка на {'неделю' if plan == 'week' else 'месяц'}"
+        description_map = {'week': 'Подписка на неделю', 'month': 'Подписка на месяц', 'combo': 'Комбо-пакет (месяц доступа)'}
+        description = description_map[plan]
         
         conn = psycopg2.connect(dsn)
         try:
