@@ -5,8 +5,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 import secrets
-import urllib.request
-import urllib.parse
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -89,11 +90,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     conn.commit()
                     print(f"New subscription created: token={token[:10]}..., expires={expires_at}")
                 
-                sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
-                from_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
+                smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
+                smtp_password = os.environ.get('SMTP_PASSWORD')
                 
-                if not sendgrid_api_key:
-                    print("WARNING: SENDGRID_API_KEY not configured, skipping email")
+                if not smtp_password:
+                    print("WARNING: SMTP_PASSWORD not configured, skipping email")
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json'},
@@ -133,26 +134,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 Валентина Голосова"""
                 
                 try:
-                    payload = {
-                        "personalizations": [{"to": [{"email": email}]}],
-                        "from": {"email": from_email},
-                        "subject": 'Доступ к закрытому чату курса "Банкротство физических лиц"',
-                        "content": [{"type": "text/plain", "value": email_body}]
-                    }
+                    msg = MIMEMultipart('alternative')
+                    msg['Subject'] = 'Доступ к закрытому чату курса "Банкротство физических лиц"'
+                    msg['From'] = smtp_email
+                    msg['To'] = email
                     
-                    req = urllib.request.Request(
-                        'https://api.sendgrid.com/v3/mail/send',
-                        data=json.dumps(payload).encode('utf-8'),
-                        headers={
-                            'Authorization': f'Bearer {sendgrid_api_key}',
-                            'Content-Type': 'application/json'
-                        },
-                        method='POST'
-                    )
+                    part = MIMEText(email_body, 'plain', 'utf-8')
+                    msg.attach(part)
                     
-                    with urllib.request.urlopen(req, timeout=10) as response:
-                        status = response.status
-                        print(f"✅ Email sent successfully to {email} (status: {status})")
+                    server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
+                    server.login(smtp_email, smtp_password)
+                    server.send_message(msg)
+                    server.quit()
+                    
+                    print(f"✅ Email sent successfully to {email} via Yandex SMTP")
                     
                     return {
                         'statusCode': 200,
