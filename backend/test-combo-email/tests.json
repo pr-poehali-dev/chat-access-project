@@ -1,0 +1,13 @@
+{
+  "tests": [
+    {
+      "name": "Test email sending",
+      "method": "GET",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
