@@ -5,9 +5,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 import secrets
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -90,88 +87,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     conn.commit()
                     print(f"New subscription created: token={token[:10]}..., expires={expires_at}")
                 
-                smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
-                smtp_password = os.environ.get('SMTP_PASSWORD')
-                
-                if not smtp_password:
-                    print("WARNING: SMTP_PASSWORD not configured, skipping email")
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json'},
-                        'body': json.dumps({'success': True, 'token': token, 'email_sent': False})
-                    }
-                
                 chat_url = 'https://chat-bankrot.ru'
                 expires_date = (datetime.now() + timedelta(days=30)).strftime('%d.%m.%Y')
                 
-                email_body = f"""Здравствуйте!
-
-Спасибо за покупку комбо-пакета!
-
-Ваш доступ к закрытому чату активирован до {expires_date}.
-
-🔑 Ваш персональный токен доступа:
-{token}
-
-📱 Ссылка на чат:
-{chat_url}
-
-Инструкция по входу:
-1. Перейдите по ссылке: {chat_url}
-2. Нажмите "Войти с токеном"
-3. Вставьте ваш токен доступа
-4. Готово! Вы в чате
-
-Важно:
-- Сохраните этот токен - он понадобится для входа
-- Токен действителен до {expires_date}
-- Не передавайте токен другим людям
-
-По всем вопросам пишите на bankrotkurs@yandex.ru
-
-С уважением,
-Команда курса "Банкротство физических лиц"
-Валентина Голосова"""
+                print(f"✅ Token created successfully for {email}, returning to bankrot-kurs.ru")
                 
-                try:
-                    msg = MIMEMultipart('alternative')
-                    msg['Subject'] = 'Доступ к закрытому чату курса "Банкротство физических лиц"'
-                    msg['From'] = smtp_email
-                    msg['To'] = email
-                    
-                    part = MIMEText(email_body, 'plain', 'utf-8')
-                    msg.attach(part)
-                    
-                    server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
-                    server.login(smtp_email, smtp_password)
-                    server.send_message(msg)
-                    server.quit()
-                    
-                    print(f"✅ Email sent successfully to {email} via Yandex SMTP")
-                    
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json'},
-                        'body': json.dumps({
-                            'success': True, 
-                            'token': token,
-                            'email_sent': True,
-                            'expires_at': expires_date
-                        })
-                    }
-                except Exception as e:
-                    error_msg = str(e)
-                    print(f"❌ Email sending failed: {type(e).__name__}: {error_msg}")
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json'},
-                        'body': json.dumps({
-                            'success': True,
-                            'token': token,
-                            'email_sent': False,
-                            'error': error_msg
-                        })
-                    }
+                return {
+                    'statusCode': 200,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'body': json.dumps({
+                        'success': True,
+                        'token': token,
+                        'chat_url': chat_url,
+                        'expires_at': expires_date,
+                        'email': email
+                    })
+                }
         finally:
             conn.close()
             
