@@ -97,7 +97,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             email = order['email']
                         
                         token = secrets.token_urlsafe(32)
-                        days = 7 if plan == 'week' else 30
+                        if plan == 'week':
+                            days = 7
+                        elif plan in ['month', 'combo']:
+                            days = 30
+                        else:
+                            days = 30
                         expires_at = datetime.now() + timedelta(days=days)
                         
                         safe_token = token.replace("'", "''")
@@ -120,7 +125,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         if email:
                             try:
                                 chat_url = 'https://chat-bankrot.ru'
-                                plan_name = 'неделю' if plan == 'week' else 'месяц'
+                                if plan == 'week':
+                                    plan_name = 'неделю'
+                                elif plan == 'combo':
+                                    plan_name = 'месяц (комбо-пакет)'
+                                else:
+                                    plan_name = 'месяц'
                                 expires_date = expires_at.strftime('%d.%m.%Y')
                                 
                                 smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
