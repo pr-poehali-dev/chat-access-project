@@ -5,9 +5,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 import secrets
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import urllib.request
+import urllib.parse
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -90,11 +89,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     conn.commit()
                     print(f"New subscription created: token={token[:10]}..., expires={expires_at}")
                 
-                smtp_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
-                smtp_password = os.environ.get('SMTP_PASSWORD')
+                sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
+                from_email = os.environ.get('SMTP_EMAIL', 'bankrotkurs@yandex.ru')
                 
-                if not smtp_password:
-                    print("WARNING: SMTP_PASSWORD not configured, skipping email")
+                if not sendgrid_api_key:
+                    print("WARNING: SENDGRID_API_KEY not configured, skipping email")
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json'},
@@ -103,11 +102,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 chat_url = 'https://chat-bankrot.ru'
                 expires_date = (datetime.now() + timedelta(days=30)).strftime('%d.%m.%Y')
-                
-                msg = MIMEMultipart()
-                msg['From'] = smtp_email
-                msg['To'] = email
-                msg['Subject'] = 'Доступ к закрытому чату курса "Банкротство физических лиц"'
                 
                 email_body = f"""Здравствуйте!
 
@@ -138,14 +132,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 Команда курса "Банкротство физических лиц"
 Валентина Голосова"""
                 
-                msg.attach(MIMEText(email_body, 'plain', 'utf-8'))
-                
                 try:
-                    with smtplib.SMTP('smtp.yandex.ru', 587) as server:
-                        server.starttls()
-                        server.login(smtp_email, smtp_password)
-                        server.send_message(msg)
-                        print(f"✅ Email sent successfully to {email}")
+                    payload = {
+                        "personalizations": [{"to": [{"email": email}]}],
+                        "from": {"email": from_email},
+                        "subject": 'Доступ к закрытому чату курса "Банкротство физических лиц"',
+                        "content": [{"type": "text/plain", "value": email_body}]
+                    }
+                    
+                    req = urllib.request.Request(
+                        'https://api.sendgrid.com/v3/mail/send',
+                        data=json.dumps(payload).encode('utf-8'),
+                        headers={
+                            'Authorization': f'Bearer {sendgrid_api_key}',
+                            'Content-Type': 'application/json'
+                        },
+                        method='POST'
+                    )
+                    
+                    with urllib.request.urlopen(req, timeout=10) as response:
+                        status = response.status
+                        print(f"✅ Email sent successfully to {email} (status: {status})")
                     
                     return {
                         'statusCode': 200,
@@ -158,7 +165,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         })
                     }
                 except Exception as e:
-                    print(f"❌ Email sending failed: {type(e).__name__}: {str(e)}")
+                    error_msg = str(e)
+                    print(f"❌ Email sending failed: {type(e).__name__}: {error_msg}")
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json'},
@@ -166,7 +174,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             'success': True,
                             'token': token,
                             'email_sent': False,
-                            'error': str(e)
+                            'error': error_msg
                         })
                     }
         finally:
