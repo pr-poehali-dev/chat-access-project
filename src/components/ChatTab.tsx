@@ -157,7 +157,7 @@ export default function ChatTab({
               <Icon name="Clock" size={18} className="text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <h4 className="font-semibold text-sm mb-1">Время работы чата</h4>
-                <p className="text-xs text-muted-foreground">Понедельник - Пятница: 10:00 - 18:00</p>
+                <p className="text-xs text-muted-foreground">Понедельник - Пятница: 10:00 - 18:00 (МСК)</p>
               </div>
             </div>
           </Card>
