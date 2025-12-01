@@ -9,7 +9,7 @@ def handler(event, context):
     '''
     try:
         payload = {
-            "email": "egolosova000@gmail.com",
+            "email": "v89661655608@gmail.com",
             "amount": 4999
         }
         
