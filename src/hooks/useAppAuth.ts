@@ -34,6 +34,7 @@ export function useAppAuth() {
       
       if ((data.valid && data.is_active) || data.is_active) {
         handleLogin(tokenToVerify, false);
+        setSubscription(data);
         window.history.replaceState({}, '', window.location.pathname);
         const expiresDate = new Date(data.expires_at).toLocaleDateString('ru-RU');
         toast({
