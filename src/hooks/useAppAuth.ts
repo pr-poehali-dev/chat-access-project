@@ -78,7 +78,7 @@ export function useAppAuth() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlToken = urlParams.get('token');
     
-    if (urlToken && !token) {
+    if (urlToken) {
       verifyAndLoginWithToken(urlToken);
     } else if (token && !isAdmin) {
       loadSubscription();
