@@ -5,6 +5,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
 import secrets
+import urllib.request
+import urllib.error
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -72,10 +74,48 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
         
         if method == 'GET':
+            query_params = event.get('queryStringParameters') or {}
+            chat_token = query_params.get('token') or query_params.get('chat_token')
+            
+            if chat_token:
+                api_key = os.environ.get('BANKROT_KURS_API_KEY')
+                if api_key:
+                    try:
+                        bankrot_api_url = f'https://functions.poehali.dev/4be60127-67a0-45a6-8940-0e875ec618ac?token={chat_token}'
+                        req = urllib.request.Request(bankrot_api_url, headers={'X-Api-Key': api_key})
+                        
+                        with urllib.request.urlopen(req) as response:
+                            response_data = response.read().decode('utf-8')
+                            data = json.loads(response_data)
+                            print(f'✅ Token verified via bankrot-kurs.ru: {chat_token[:10]}...')
+                            
+                            return {
+                                'statusCode': 200,
+                                'headers': {
+                                    'Content-Type': 'application/json',
+                                    'Access-Control-Allow-Origin': '*'
+                                },
+                                'isBase64Encoded': False,
+                                'body': json.dumps(data, ensure_ascii=False)
+                            }
+                    except urllib.error.HTTPError as e:
+                        error_body = e.read().decode('utf-8')
+                        print(f'❌ Bankrot-kurs.ru verification failed: HTTP {e.code}')
+                        return {
+                            'statusCode': e.code,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': error_body
+                        }
+                    except Exception as e:
+                        print(f'⚠️ Bankrot-kurs.ru API error, falling back to local DB: {e}')
+            
             headers = event.get('headers', {})
             user_token = headers.get('X-User-Token') or headers.get('x-user-token')
             
-            if not user_token:
+            if not user_token and not chat_token:
                 return {
                     'statusCode': 401,
                     'headers': {
@@ -84,6 +124,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     },
                     'body': json.dumps({'error': 'Token required'})
                 }
+            
+            if not user_token:
+                user_token = chat_token
             
             if user_token == 'admin_forever_access_2024':
                 return {
