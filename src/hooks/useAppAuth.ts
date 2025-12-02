@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const SUB_API = 'https://functions.poehali.dev/957d493f-5bdb-4f6b-9b96-4f755f9d1d9b';
-const VERIFY_TOKEN_API = 'https://functions.poehali.dev/c499486b-a97c-4ff5-8905-0ccd7fddcf9d';
+const VERIFY_TOKEN_API = 'https://functions.poehali.dev/4be60127-67a0-45a6-8940-0e875ec618ac';
+const BANKROT_KURS_API_KEY = import.meta.env.VITE_BANKROT_KURS_API_KEY || '';
 
 export function useAppAuth() {
   const [token, setToken] = useState<string | null>(localStorage.getItem('userToken'));
@@ -30,20 +31,24 @@ export function useAppAuth() {
 
   const verifyAndLoginWithToken = useCallback(async (tokenToVerify: string) => {
     try {
-      const res = await fetch(`${VERIFY_TOKEN_API}?chat_token=${tokenToVerify}`);
+      const res = await fetch(`${VERIFY_TOKEN_API}?token=${tokenToVerify}`, {
+        headers: {
+          'X-Api-Key': BANKROT_KURS_API_KEY
+        }
+      });
       const data = await res.json();
       
-      if (data.valid) {
+      if (data.valid && data.subscription?.is_active) {
         handleLogin(tokenToVerify, false);
         window.history.replaceState({}, '', window.location.pathname);
         toast({
           title: 'Добро пожаловать!',
-          description: `Привет, ${data.full_name}! Ваша подписка действует до ${new Date(data.expires_at).toLocaleDateString('ru-RU')}`
+          description: `Ваша подписка активна до ${new Date(data.subscription.expires_at).toLocaleDateString('ru-RU')}`
         });
       } else {
         toast({
           title: 'Ошибка входа',
-          description: data.error || 'Токен недействителен',
+          description: data.error || 'Токен недействителен или подписка истекла',
           variant: 'destructive'
         });
       }
