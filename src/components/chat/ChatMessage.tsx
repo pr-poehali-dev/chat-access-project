@@ -61,7 +61,7 @@ export default function ChatMessage({
   renderMessage
 }: ChatMessageProps) {
   const isReply = msg.reply_to !== null && msg.reply_to !== undefined;
-  const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
+  const isAdminMessage = msg.is_admin_message || msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
 
   return (
     <div key={msg.id} className="space-y-1.5">
@@ -85,8 +85,8 @@ export default function ChatMessage({
             </Badge>
           )}
           {msg.author_name && (() => {
-            const isAdminMessage = msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
-            const displayName = isAdminMessage ? 'Команда юристов Валентины Голосовой' : msg.author_name;
+            const msgIsAdmin = msg.is_admin_message || msg.user_token === 'admin_forever_access_2024' || msg.user_token === 'ADMIN_TOKEN_ValentinaGolosova2024';
+            const displayName = msgIsAdmin ? 'Команда юристов Валентины Голосовой' : msg.author_name;
             const nameHash = msg.author_name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             const userColors = [
               'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
@@ -95,13 +95,13 @@ export default function ChatMessage({
               'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700',
               'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700'
             ];
-            const colorClass = isAdminMessage 
+            const colorClass = msgIsAdmin 
               ? 'bg-amber-400 dark:bg-amber-500 text-amber-950 dark:text-amber-950 border-amber-500 dark:border-amber-600 font-semibold shadow-sm'
               : userColors[nameHash % userColors.length];
             
             return (
               <Badge variant="outline" className={`text-[10px] py-0 px-1.5 h-5 ${colorClass}`}>
-                <Icon name={isAdminMessage ? "Crown" : "User"} size={10} className="mr-0.5" />
+                <Icon name={msgIsAdmin ? "Crown" : "User"} size={10} className="mr-0.5" />
                 {displayName}
               </Badge>
             );

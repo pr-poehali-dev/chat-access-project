@@ -150,6 +150,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'edited_at': msg['edited_at'].isoformat() if msg.get('edited_at') else None,
                                 'user_token': msg.get('user_token') if is_admin else None,
                                 'email': msg.get('email') if is_admin else None,
+                                'is_admin_message': msg.get('user_token') in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024'] if msg.get('user_token') else False,
                                 'reactions': reactions_by_message.get(msg['id'], []),
                                 'user_reactions': user_reactions_by_message.get(msg['id'], []),
                                 'admin_reacted': msg['id'] in admin_reacted_messages

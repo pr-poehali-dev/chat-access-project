@@ -20,6 +20,7 @@ export interface Message {
   email?: string | null;
   is_pinned?: boolean;
   edited_at?: string | null;
+  is_admin_message?: boolean;
   reactions?: Reaction[];
   user_reactions?: string[];
   admin_reacted?: boolean;
