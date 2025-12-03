@@ -154,7 +154,7 @@ export function useChat(
     try {
       const payload = { 
         content: newMessage.trim(),
-        author_name: authorName || 'Участник',
+        author_name: authorName?.trim() || 'Участник',
         reply_to: replyTo,
         image_urls: imageUrls
       };

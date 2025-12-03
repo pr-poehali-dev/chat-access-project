@@ -75,16 +75,12 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (token && activeTab === 'chat') {
-      const hasPromptedName = sessionStorage.getItem('hasPromptedNameDialog');
-      if (!authorName && !hasPromptedName) {
-        setTimeout(() => {
-          setShowNameDialog(true);
-          sessionStorage.setItem('hasPromptedNameDialog', 'true');
-        }, 1000);
-      }
+    if (token && activeTab === 'chat' && !authorName.trim()) {
+      setTimeout(() => {
+        setShowNameDialog(true);
+      }, 1000);
     }
-  }, [token, activeTab, authorName]);
+  }, [token, activeTab, authorName, setShowNameDialog]);
 
   useEffect(() => {
     if (subscription) {
