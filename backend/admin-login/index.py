@@ -34,15 +34,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     body_str = event.get('body', '{}')
-    print(f'DEBUG: Received body string: {body_str}')
     body_data = json.loads(body_str)
-    print(f'DEBUG: Parsed body data: {body_data}')
-    password = body_data.get('password', '')
-    print(f'DEBUG: Extracted password: "{password}" (length: {len(password)})')
+    password = body_data.get('password', '').strip()
     
     admin_password = 'ValentinaGolosova2024'
-    print(f'DEBUG: Expected password: "{admin_password}" (length: {len(admin_password)})')
-    print(f'DEBUG: Passwords match: {password == admin_password}')
     
     if password == admin_password:
         return {
