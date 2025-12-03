@@ -31,16 +31,22 @@ export function useNotifications() {
 
   const showNotification = (message: string) => {
     if (notificationSound.current) {
-      notificationSound.current.play().catch(() => {});
+      notificationSound.current.volume = 0.5;
+      notificationSound.current.play().catch((err) => {
+        console.log('Sound play failed:', err);
+      });
     }
     
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('Новое сообщение в чате', {
-        body: message.substring(0, 100),
-        icon: 'https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/9408ffb6-d620-48c1-a73c-28f51c620a12.jpg',
-        tag: 'chat-message',
-        requireInteraction: false
-      });
+      if (document.hidden) {
+        new Notification('Новое сообщение в чате', {
+          body: message.substring(0, 100),
+          icon: 'https://cdn.poehali.dev/projects/0c6e7a17-cb77-4211-87f3-c9e0e456ee77/files/9408ffb6-d620-48c1-a73c-28f51c620a12.jpg',
+          tag: 'chat-message',
+          requireInteraction: false,
+          vibrate: [200, 100, 200]
+        });
+      }
     }
   };
 

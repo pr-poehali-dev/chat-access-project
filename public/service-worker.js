@@ -61,13 +61,15 @@ async function checkNewMessages(token) {
       if (messages.length > 0) {
         const latestMessage = messages[0];
         
-        if (lastMessageId !== null && latestMessage.id > lastMessageId) {
+        if (lastMessageId !== null && latestMessage.id > lastMessageId && latestMessage.user_token !== token) {
+          const authorName = latestMessage.author_name || 'Участник';
           await self.registration.showNotification('Новое сообщение в чате', {
-            body: latestMessage.content.substring(0, 100),
+            body: `${authorName}: ${latestMessage.content.substring(0, 100)}`,
             icon: ICON_URL,
             badge: ICON_URL,
             tag: 'chat-notification',
             requireInteraction: false,
+            vibrate: [200, 100, 200],
             data: { url: '/?tab=chat' }
           });
         }

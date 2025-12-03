@@ -100,7 +100,18 @@ export function useChat(
         setTypingUsers(data.typing_users || []);
         
         if (silent && prevLatestId !== null && newMessages.length > 0 && newMessages[0].id > prevLatestId) {
-          showNotification(newMessages[0].content);
+          const latestMessage = newMessages[0];
+          console.log('New message detected:', { 
+            messageToken: latestMessage.user_token, 
+            currentToken: token, 
+            isOwnMessage: latestMessage.user_token === token 
+          });
+          if (latestMessage.user_token !== token) {
+            console.log('Showing notification for message:', latestMessage.content.substring(0, 50));
+            showNotification(latestMessage.content);
+          } else {
+            console.log('Skipping notification - own message');
+          }
         }
         
         const unread = newMessages.filter((msg: Message) => msg.id > lastReadId).length;
