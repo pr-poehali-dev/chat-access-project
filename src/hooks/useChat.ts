@@ -35,7 +35,7 @@ export function useChat(
   authorName: string,
   activeTab: string,
   subscription: any,
-  showNotification: (message: string) => void,
+  showNotification: (message: string, isAdminMessage?: boolean) => void,
   isAdmin: boolean = false
 ) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -105,11 +105,12 @@ export function useChat(
           console.log('New message detected:', { 
             messageToken: latestMessage.user_token, 
             currentToken: token, 
-            isOwnMessage: latestMessage.user_token === token 
+            isOwnMessage: latestMessage.user_token === token,
+            isAdminMessage: latestMessage.is_admin_message
           });
           if (latestMessage.user_token !== token) {
             console.log('Showing notification for message:', latestMessage.content.substring(0, 50));
-            showNotification(latestMessage.content);
+            showNotification(latestMessage.content, latestMessage.is_admin_message || false);
           } else {
             console.log('Skipping notification - own message');
           }
