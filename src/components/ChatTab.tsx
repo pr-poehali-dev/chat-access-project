@@ -63,8 +63,10 @@ export default function ChatTab({
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (!isAdmin) {
+      scrollToBottom();
+    }
+  }, [messages, isAdmin]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
