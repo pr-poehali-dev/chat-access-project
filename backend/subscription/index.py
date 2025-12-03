@@ -95,14 +95,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                     try:
                                         expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
                                         email = data.get('email', '')
+                                        plan = data.get('plan', 'month')
+                                        if plan not in ['week', 'month']:
+                                            plan = 'month'
                                         cur.execute(
                                             """
                                             INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at, email)
                                             VALUES (%s, %s, %s, %s)
                                             ON CONFLICT (user_token) DO UPDATE 
-                                            SET expires_at = EXCLUDED.expires_at, email = EXCLUDED.email
+                                            SET expires_at = EXCLUDED.expires_at, email = EXCLUDED.email, plan = EXCLUDED.plan
                                             """,
-                                            (chat_token, data.get('plan', 'external'), expires_at, email)
+                                            (chat_token, plan, expires_at, email)
                                         )
                                         conn.commit()
                                         print(f'💾 Token cached in local DB: {chat_token[:10]}...')
