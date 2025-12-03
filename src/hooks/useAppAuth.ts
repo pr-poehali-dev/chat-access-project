@@ -103,6 +103,14 @@ export function useAppAuth() {
     }
   }, [token, isAdmin, verifyAndLoginWithToken, loadSubscription]);
 
+  useEffect(() => {
+    if (isAdmin && (!authorName || authorName === 'Участник')) {
+      const adminName = 'Команда юристов Валентины Голосовой';
+      setAuthorName(adminName);
+      localStorage.setItem('authorName', adminName);
+    }
+  }, [isAdmin, authorName]);
+
   const handleLogout = () => {
     setToken(null);
     setIsAdmin(false);
