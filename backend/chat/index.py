@@ -82,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     )
                 else:
                     cur.execute(
-                        "SELECT id, content, image_url, image_urls, author_name, reply_to, created_at, is_pinned, edited_at FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY is_pinned DESC, created_at DESC"
+                        "SELECT id, content, image_url, image_urls, author_name, reply_to, created_at, is_pinned, edited_at, user_token FROM t_p8566807_chat_access_project.messages WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY is_pinned DESC, created_at DESC"
                     )
                 messages = cur.fetchall()
                 
