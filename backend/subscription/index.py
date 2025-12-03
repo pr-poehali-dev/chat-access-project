@@ -99,16 +99,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'body': json.dumps(data, ensure_ascii=False)
                             }
                     except urllib.error.HTTPError as e:
-                        error_body = e.read().decode('utf-8')
-                        print(f'❌ Bankrot-kurs.ru verification failed: HTTP {e.code}')
-                        return {
-                            'statusCode': e.code,
-                            'headers': {
-                                'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': '*'
-                            },
-                            'body': error_body
-                        }
+                        print(f'❌ Bankrot-kurs.ru verification failed: HTTP {e.code}, falling back to local DB')
                     except Exception as e:
                         print(f'⚠️ Bankrot-kurs.ru API error, falling back to local DB: {e}')
             
