@@ -140,30 +140,44 @@ export function useChat(
   };
 
   const sendMessage = async (replyTo?: number, imageUrls?: string[]) => {
-    if (!newMessage.trim() && !imageUrls?.length) return;
-    if (!token) return;
+    console.log('[sendMessage] Start', { newMessage, token, replyTo, imageUrls });
+    if (!newMessage.trim() && !imageUrls?.length) {
+      console.log('[sendMessage] Empty message, returning');
+      return;
+    }
+    if (!token) {
+      console.log('[sendMessage] No token, returning');
+      return;
+    }
     
     setIsLoading(true);
     try {
+      const payload = { 
+        content: newMessage.trim(),
+        author_name: authorName || 'Участник',
+        reply_to: replyTo,
+        image_urls: imageUrls
+      };
+      console.log('[sendMessage] Sending POST to', CHAT_API, payload);
+      
       const res = await fetch(CHAT_API, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-User-Token': token
         },
-        body: JSON.stringify({ 
-          content: newMessage.trim(),
-          author_name: authorName || 'Участник',
-          reply_to: replyTo,
-          image_urls: imageUrls
-        })
+        body: JSON.stringify(payload)
       });
       
+      console.log('[sendMessage] Response status:', res.status);
+      
       if (res.ok) {
+        console.log('[sendMessage] Success!');
         setNewMessage('');
         loadMessages();
       } else {
         const errorData = await res.json();
+        console.log('[sendMessage] Error response:', errorData);
         toast({
           title: 'Ошибка отправки',
           description: errorData.error || 'Не удалось отправить сообщение',
@@ -171,6 +185,7 @@ export function useChat(
         });
       }
     } catch (error) {
+      console.log('[sendMessage] Exception:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось отправить сообщение',
