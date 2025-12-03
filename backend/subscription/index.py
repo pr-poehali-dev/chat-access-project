@@ -52,7 +52,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
-                    "INSERT INTO subscriptions (user_token, plan, expires_at) VALUES (%s, %s, %s) RETURNING id, user_token, plan, expires_at, created_at",
+                    "INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at) VALUES (%s, %s, %s) RETURNING id, user_token, plan, expires_at, created_at",
                     (token, plan, expires_at)
                 )
                 sub = cur.fetchone()
@@ -146,7 +146,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
-                    "SELECT id, plan, expires_at, created_at FROM subscriptions WHERE user_token = %s",
+                    "SELECT id, plan, expires_at, created_at, expires_at > NOW() as is_active FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
                     (user_token,)
                 )
                 sub = cur.fetchone()
@@ -161,7 +161,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'body': json.dumps({'error': 'Subscription not found'})
                     }
                 
-                is_active = sub['expires_at'] > datetime.now()
+                is_active = sub['is_active']
                 
                 return {
                     'statusCode': 200,
