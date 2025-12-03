@@ -47,7 +47,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        "SELECT expires_at FROM subscriptions WHERE user_token = %s",
+                        "SELECT expires_at FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
                         (user_token,)
                     )
                     sub = cur.fetchone()
