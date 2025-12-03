@@ -27,7 +27,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers = event.get('headers', {})
     user_token = headers.get('X-User-Token') or headers.get('x-user-token')
     
-    if user_token != 'admin_forever_access_2024':
+    if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
         return {
             'statusCode': 403,
             'headers': {
