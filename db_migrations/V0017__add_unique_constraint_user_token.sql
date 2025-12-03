@@ -1,0 +1,2 @@
+ALTER TABLE t_p8566807_chat_access_project.subscriptions 
+ADD CONSTRAINT subscriptions_user_token_unique UNIQUE (user_token);

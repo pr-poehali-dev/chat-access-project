@@ -89,6 +89,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             data = json.loads(response_data)
                             print(f'✅ Token verified via bankrot-kurs.ru: {chat_token[:10]}...')
                             
+                            # Сохраняем токен в локальную БД для последующих запросов
+                            if data.get('is_active'):
+                                with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                                    try:
+                                        expires_at = datetime.fromisoformat(data['expires_at'].replace('Z', '+00:00'))
+                                        email = data.get('email', '')
+                                        cur.execute(
+                                            """
+                                            INSERT INTO t_p8566807_chat_access_project.subscriptions (user_token, plan, expires_at, email)
+                                            VALUES (%s, %s, %s, %s)
+                                            ON CONFLICT (user_token) DO UPDATE 
+                                            SET expires_at = EXCLUDED.expires_at, email = EXCLUDED.email
+                                            """,
+                                            (chat_token, data.get('plan', 'external'), expires_at, email)
+                                        )
+                                        conn.commit()
+                                        print(f'💾 Token cached in local DB: {chat_token[:10]}...')
+                                    except Exception as db_err:
+                                        print(f'⚠️ Failed to cache token in DB: {db_err}')
+                                        conn.rollback()
+                            
                             return {
                                 'statusCode': 200,
                                 'headers': {
