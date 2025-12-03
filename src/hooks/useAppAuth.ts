@@ -41,6 +41,11 @@ export function useAppAuth() {
           title: 'Добро пожаловать!',
           description: `Ваша подписка активна до ${expiresDate}`
         });
+        
+        // Показываем диалог имени если его нет
+        if (!authorName) {
+          setTimeout(() => setShowNameDialog(true), 500);
+        }
       } else {
         toast({
           title: 'Ошибка входа',
