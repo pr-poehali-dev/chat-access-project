@@ -73,11 +73,16 @@ export function useAppAuth() {
       if (res.ok) {
         const data = await res.json();
         setSubscription(data);
+        
+        // Показываем диалог имени если его нет
+        if (!authorName && data.is_active) {
+          setTimeout(() => setShowNameDialog(true), 500);
+        }
       }
     } catch (error) {
       console.error('Failed to load subscription:', error);
     }
-  }, [token, isAdmin]);
+  }, [token, isAdmin, authorName]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
