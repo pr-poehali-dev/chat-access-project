@@ -14,6 +14,7 @@ interface ChatTabProps {
   isAdmin?: boolean;
   currentUserToken?: string | null;
   typingUsers?: TypingUser[];
+  authorName?: string;
   onMessageChange: (value: string) => void;
   onSendMessage: (replyTo?: number, imageUrls?: string[]) => void;
   onRequestNotifications?: () => void;
@@ -22,6 +23,7 @@ interface ChatTabProps {
   onEditMessage?: (messageId: number, newContent: string) => void;
   onToggleReaction?: (messageId: number, emoji: string, hasReacted: boolean) => void;
   onTyping?: () => void;
+  onChangeName?: () => void;
 }
 
 export default function ChatTab({ 
@@ -32,6 +34,7 @@ export default function ChatTab({
   isAdmin = false,
   currentUserToken,
   typingUsers = [],
+  authorName,
   onMessageChange, 
   onSendMessage,
   onRequestNotifications,
@@ -39,7 +42,8 @@ export default function ChatTab({
   onTogglePinMessage,
   onEditMessage,
   onToggleReaction,
-  onTyping
+  onTyping,
+  onChangeName
 }: ChatTabProps) {
   const [replyingTo, setReplyingTo] = useState<Message | null>(null);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -147,8 +151,10 @@ export default function ChatTab({
           notificationPermission={notificationPermission}
           searchQuery={searchQuery}
           filteredCount={filteredMessages.length}
+          authorName={authorName}
           onRequestNotifications={onRequestNotifications}
           onSearchChange={setSearchQuery}
+          onChangeName={onChangeName}
         />
 
         <div className="grid md:grid-cols-2 gap-3">

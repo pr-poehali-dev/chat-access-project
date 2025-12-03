@@ -153,6 +153,7 @@ export default function Index() {
                   isAdmin={isAdmin}
                   currentUserToken={token}
                   typingUsers={typingUsers}
+                  authorName={authorName}
                   onMessageChange={setNewMessage}
                   onSendMessage={sendMessage}
                   onRequestNotifications={requestNotificationPermission}
@@ -161,6 +162,7 @@ export default function Index() {
                   onEditMessage={editMessage}
                   onToggleReaction={toggleReaction}
                   onTyping={handleTyping}
+                  onChangeName={() => setShowNameDialog(true)}
                 />
               </TabsContent>
             )}

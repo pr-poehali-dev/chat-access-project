@@ -6,16 +6,20 @@ interface ChatHeaderProps {
   notificationPermission?: NotificationPermission;
   searchQuery: string;
   filteredCount: number;
+  authorName?: string;
   onRequestNotifications?: () => void;
   onSearchChange: (value: string) => void;
+  onChangeName?: () => void;
 }
 
 export default function ChatHeader({
   notificationPermission,
   searchQuery,
   filteredCount,
+  authorName,
   onRequestNotifications,
-  onSearchChange
+  onSearchChange,
+  onChangeName
 }: ChatHeaderProps) {
   return (
     <>
@@ -24,23 +28,36 @@ export default function ChatHeader({
           <Icon name="MessageSquare" size={20} className="text-primary" />
           <h3 className="text-lg font-semibold">Закрытый чат участников</h3>
         </div>
-        {notificationPermission === 'default' && (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={onRequestNotifications}
-            className="gap-2"
-          >
-            <Icon name="Bell" size={16} />
-            Включить уведомления
-          </Button>
-        )}
-        {notificationPermission === 'granted' && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Icon name="BellRing" size={14} className="text-secondary" />
-            Уведомления включены
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {authorName && onChangeName && (
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              onClick={onChangeName}
+              className="gap-1 text-xs"
+            >
+              <Icon name="User" size={14} />
+              {authorName}
+            </Button>
+          )}
+          {notificationPermission === 'default' && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={onRequestNotifications}
+              className="gap-2"
+            >
+              <Icon name="Bell" size={16} />
+              Включить уведомления
+            </Button>
+          )}
+          {notificationPermission === 'granted' && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Icon name="BellRing" size={14} className="text-secondary" />
+              Уведомления включены
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="relative mb-4">
