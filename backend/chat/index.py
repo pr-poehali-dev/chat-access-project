@@ -47,12 +47,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        "SELECT expires_at FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
+                        "SELECT expires_at > NOW() as is_active, is_blocked FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
                         (user_token,)
                     )
                     sub = cur.fetchone()
                     
-                    if not sub or sub['expires_at'] < datetime.now():
+                    if not sub or not sub['is_active']:
                         return {
                             'statusCode': 403,
                             'headers': {
@@ -60,6 +60,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                                 'Access-Control-Allow-Origin': '*'
                             },
                             'body': json.dumps({'error': 'Subscription expired or invalid'})
+                        }
+                    
+                    if sub.get('is_blocked'):
+                        return {
+                            'statusCode': 403,
+                            'headers': {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            },
+                            'body': json.dumps({'error': 'Access blocked by administrator'})
                         }
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -246,12 +256,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if user_token not in ['admin_forever_access_2024', 'ADMIN_TOKEN_ValentinaGolosova2024']:
                 with conn.cursor(cursor_factory=RealDictCursor) as cur:
                     cur.execute(
-                        "SELECT expires_at, is_blocked FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
+                        "SELECT expires_at > NOW() as is_active, is_blocked FROM t_p8566807_chat_access_project.subscriptions WHERE user_token = %s",
                         (user_token,)
                     )
                     sub = cur.fetchone()
                     
-                    if not sub or sub['expires_at'] < datetime.now():
+                    if not sub or not sub['is_active']:
                         return {
                             'statusCode': 403,
                             'headers': {
