@@ -152,6 +152,7 @@ export default function ChatTab({
           searchQuery={searchQuery}
           filteredCount={filteredMessages.length}
           authorName={authorName}
+          isAdmin={isAdmin}
           onRequestNotifications={onRequestNotifications}
           onSearchChange={setSearchQuery}
           onChangeName={onChangeName}

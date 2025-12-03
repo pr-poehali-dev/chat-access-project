@@ -18,6 +18,14 @@ export function useAppAuth() {
     setIsAdmin(adminStatus);
     localStorage.setItem('userToken', newToken);
     localStorage.setItem('isAdmin', adminStatus.toString());
+    
+    // Для администратора автоматически устанавливаем имя
+    if (adminStatus) {
+      const adminName = 'Команда юристов Валентины Голосовой';
+      setAuthorName(adminName);
+      localStorage.setItem('authorName', adminName);
+    }
+    
     setShowTokenDialog(false);
     setShowAdminDialog(false);
     

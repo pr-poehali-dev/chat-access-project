@@ -75,12 +75,12 @@ export default function Index() {
   }, []);
 
   useEffect(() => {
-    if (token && activeTab === 'chat' && !authorName.trim()) {
+    if (token && activeTab === 'chat' && !authorName.trim() && !isAdmin) {
       setTimeout(() => {
         setShowNameDialog(true);
       }, 1000);
     }
-  }, [token, activeTab, authorName, setShowNameDialog]);
+  }, [token, activeTab, authorName, isAdmin, setShowNameDialog]);
 
   useEffect(() => {
     if (subscription) {
@@ -162,7 +162,7 @@ export default function Index() {
                   onEditMessage={editMessage}
                   onToggleReaction={toggleReaction}
                   onTyping={handleTyping}
-                  onChangeName={() => setShowNameDialog(true)}
+                  onChangeName={!isAdmin ? () => setShowNameDialog(true) : undefined}
                 />
               </TabsContent>
             )}

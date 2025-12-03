@@ -7,6 +7,7 @@ interface ChatHeaderProps {
   searchQuery: string;
   filteredCount: number;
   authorName?: string;
+  isAdmin?: boolean;
   onRequestNotifications?: () => void;
   onSearchChange: (value: string) => void;
   onChangeName?: () => void;
@@ -17,6 +18,7 @@ export default function ChatHeader({
   searchQuery,
   filteredCount,
   authorName,
+  isAdmin = false,
   onRequestNotifications,
   onSearchChange,
   onChangeName
@@ -34,9 +36,13 @@ export default function ChatHeader({
               size="sm" 
               variant="ghost" 
               onClick={onChangeName}
-              className="gap-1 text-xs"
+              className={`gap-1 text-xs ${
+                isAdmin 
+                  ? 'bg-amber-400/10 hover:bg-amber-400/20 text-amber-700 dark:text-amber-400 font-semibold' 
+                  : ''
+              }`}
             >
-              <Icon name="User" size={14} />
+              <Icon name={isAdmin ? "Crown" : "User"} size={14} className={isAdmin ? 'text-amber-600' : ''} />
               {authorName}
             </Button>
           )}
