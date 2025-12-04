@@ -169,9 +169,7 @@ export default function Index() {
 
             <TabsContent value="subscription">
               <SubscriptionTab 
-                token={token} 
                 subscription={subscription}
-                onSubscriptionUpdate={loadSubscription}
               />
             </TabsContent>
 
