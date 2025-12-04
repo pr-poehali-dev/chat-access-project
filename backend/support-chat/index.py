@@ -4,11 +4,88 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 def get_db_connection():
     """Создает соединение с базой данных"""
     dsn = os.environ.get('DATABASE_URL')
     return psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+
+def send_email_notification(client_email: str, message_text: str, ticket_id: int):
+    """Отправляет email уведомление админу о новом сообщении"""
+    smtp_email = os.environ.get('SMTP_EMAIL')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    admin_email = 'melni-v@yandex.ru'
+    
+    if not smtp_email or not smtp_password:
+        return
+    
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f'Новое сообщение в поддержке от {client_email}'
+        msg['From'] = smtp_email
+        msg['To'] = admin_email
+        
+        text = f'''Новое сообщение в поддержке!
+
+От: {client_email}
+Тикет: #{ticket_id}
+
+Сообщение:
+{message_text}
+
+Ответить: https://app.bankrot-kurs.ru/admin/support
+'''
+        
+        html = f'''<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }}
+        .content {{ background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }}
+        .message {{ background: white; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #667eea; }}
+        .footer {{ text-align: center; padding: 15px; color: #666; font-size: 12px; }}
+        .button {{ display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 15px 0; }}
+        .info {{ color: #666; font-size: 14px; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>🔔 Новое сообщение в поддержке</h2>
+        </div>
+        <div class="content">
+            <p class="info"><strong>От:</strong> {client_email}</p>
+            <p class="info"><strong>Тикет:</strong> #{ticket_id}</p>
+            <div class="message">
+                <p><strong>Сообщение:</strong></p>
+                <p>{message_text}</p>
+            </div>
+            <center>
+                <a href="https://app.bankrot-kurs.ru/admin/support" class="button">Ответить клиенту</a>
+            </center>
+        </div>
+        <div class="footer">
+            <p>Это автоматическое уведомление от системы поддержки bankrot-kurs.ru</p>
+        </div>
+    </div>
+</body>
+</html>'''
+        
+        part1 = MIMEText(text, 'plain', 'utf-8')
+        part2 = MIMEText(html, 'html', 'utf-8')
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
+            server.login(smtp_email, smtp_password)
+            server.send_message(msg)
+    except Exception as e:
+        print(f'Ошибка отправки email: {e}')
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -183,6 +260,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 ''', (ticket_id,))
                 
                 conn.commit()
+                
+                # Отправить email уведомление админу, если сообщение от клиента
+                if sender_type == 'client' and user_email and message_text:
+                    send_email_notification(user_email, message_text, ticket_id)
                 
                 return {
                     'statusCode': 200,
