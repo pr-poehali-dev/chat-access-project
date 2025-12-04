@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "Get messages for new user",
+      "method": "GET",
+      "path": "/?action=get_messages",
+      "headers": {
+        "X-User-Email": "test@example.com"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Send message",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Email": "test@example.com"
+      },
+      "body": {
+        "action": "send_message",
+        "message": "Здравствуйте, у меня вопрос",
+        "sender_type": "client"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}

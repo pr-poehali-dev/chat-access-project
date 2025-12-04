@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ export default function SupportTab() {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +53,29 @@ export default function SupportTab() {
 
   return (
     <div className="space-y-6">
+      <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+            <Icon name="MessageSquare" size={24} className="text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold">Поддержка юристов</h3>
+            <p className="text-sm text-muted-foreground">Чат с юридической поддержкой</p>
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Задавайте вопросы, прикрепляйте документы и получайте ответы от наших юристов в режиме реального времени.
+        </p>
+        <Button 
+          onClick={() => navigate('/support')}
+          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+          size="lg"
+        >
+          <Icon name="MessageCircle" size={20} className="mr-2" />
+          Открыть чат с юристом
+        </Button>
+      </Card>
+
       <Card className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
